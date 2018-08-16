@@ -2,14 +2,14 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require("path");
-var sslRedirect = require("heroku-ssl-redirect");
+// var sslRedirect = require("heroku-ssl-redirect");
 var fetch = require("node-fetch");
 
 const PORT = process.env.PORT || 5000;
 
 var app = express();
 app.use(cors());
-app.use(sslRedirect());
+// app.use(sslRedirect());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.json({ limit: "100mb" }));
 // Makes sure async functions will throw errors
