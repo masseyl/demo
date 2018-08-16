@@ -27,7 +27,7 @@ const makeStore = () => {
 	//create and persist the data store
 	const store = createStore(persistedReducer, compose(...enhancers));
 	let persistor = persistStore(store);
-	// persistor.purge();
+	persistor.purge();
 	sagaMiddleware.run(rootSaga);
 
 	//attach navigation to state

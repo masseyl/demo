@@ -1,14 +1,19 @@
 import React, { PureComponent } from "react";
 import styled from "styled-components";
-
+import { API_URL } from "../config";
 const Card = props => {
 	let textHeight = 40;
 	const label = props.label;
 	return (
 		<Container>
 			<TopRow>
-				<Image />
-				<Title>{props.info.title}</Title>
+				<Image
+					src={"http://message-list.appspot.com" + props.card.author.photoUrl}
+				/>
+				<NameBox>
+					<Author>{props.card.author.name}</Author>
+					<Duration>duration</Duration>
+				</NameBox>
 			</TopRow>
 			<Text
 				onClick={() => {
@@ -16,7 +21,7 @@ const Card = props => {
 				}}
 				textHeight={this.textHeight}
 			>
-				{props.info.body}
+				{props.card.content}
 			</Text>
 		</Container>
 	);
@@ -35,30 +40,45 @@ const Container = styled.div`
 export default Card;
 
 const Image = styled.img`
-	width: 30px;
-	height: 30px;
-	border-radius: 10px;
+	width: 40px;
+	height: 40px;
+	border-radius: 30px;
 	border-width: 1px;
 	margin-right: 10px;
 `;
+
 const TopRow = styled.div`
 	display: flex;
 	flex-direction: row;
 	align-items: center;
+	margin-left: 10px;
+	height: 48px;
 `;
-const Title = styled.div`
+
+const Author = styled.div`
+	padding-top: 7px;
 	font-weight: bold;
-	font-size: 16;
+	font-size: 14px;
 	color: rgba(22, 22, 22, 0.7);
-	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
 `;
+
+const NameBox = styled.div`
+	padding-top: 4px;
+`;
+
+const Duration = styled.p`
+	font-size: 12px;
+	color: rgba(99, 99, 99, 0.6);
+	border-width: 1px;
+	margin-top: 1px;
+`;
+
 const Text = styled.p`
-	font-size: 10;
-	color: rgba(99, 99, 99, 0.7);
+	font-size: 14px;
+	color: rgba(11, 11, 11, 0.8);
 	overflow: hidden;
 	display: -webkit-box;
-	-webkit-line-clamp: 2;
+	-webkit-line-clamp: 3;
 	-webkit-box-orient: vertical;
+	margin-left: 10px;
 `;

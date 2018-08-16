@@ -2,7 +2,7 @@ import React, { PureComponent } from "react";
 import styled from "styled-components";
 
 const ScrollView = props => {
-	return <Container>{props.children}</Container>;
+	return <Container onScroll={props.onScroll}>{props.children}</Container>;
 };
 
 const Container = styled.div`
@@ -11,6 +11,7 @@ const Container = styled.div`
 	height: 100vh;
 	background-color: transparent;
 	padding-top: 86px;
+	padding-bottom: 86px;
 	overflow-y: scroll;
 `;
 

@@ -9,8 +9,6 @@ const options = {
 };
 
 export const upload = async (data, onProgress) => {
-	console.log("API SAVERY");
-	console.log(data);
 	let localOptions = {
 		headers: {
 			"Content-Type": "application/json"

@@ -11,7 +11,6 @@
 		"test": "node test.js"
 	},
 	"dependencies": {
-		"@neurosity/pipes": "^3.0.2",
 		"assert": "1.4.1",
 		"body-parser": "1.18.3",
 		"co": "4.6.0",
@@ -19,10 +18,7 @@
 		"ejs": "^2.5.6",
 		"express": "^4.15.2",
 		"heroku-ssl-redirect": "^0.0.4",
-		"libphonenumber-js": "^1.2.15",
-		"mongodb": "3.1.0-beta4",
-		"stripe": "^6.4.0",
-		"twilio": "^3.17.4"
+		"node-fetch": "^2.2.0"
 	},
 	"devDependencies": {
 		"request": "^2.81.0",
@@ -30,12 +26,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://git.heroku.com/nopain1.git"
+		"url": "https://github.com/Pillrs-Org/google-messages"
 	},
-	"keywords": [
-		"eeg",
-		"mobile",
-		"muse"
-	],
 	"license": "NONE"
 }

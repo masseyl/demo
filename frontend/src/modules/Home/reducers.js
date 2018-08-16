@@ -13,18 +13,21 @@ let INITIAL_STATE = {
 const moduleReducer = (state = INITIAL_STATE, action) => {
 	let newState = Immutable.asMutable(state, { deep: true });
 	switch (action.type) {
+		case GET_MESSAGES_FAIL:
+			newState.messagesLoaded = false;
+
+			return newState;
+
 		case GET_MESSAGES_SUCCESS:
-			newState.uploading = [];
-			newState.pageToken = action.payload.pageToken;
-			newState.messages = newState.messages.concat(action.payload.messages);
+			newState.count = action.response.count;
+			newState.pageToken = action.response.pageToken;
+			newState.messages = newState.messages.concat(action.response.messages);
+			newState.messagesLoaded = true;
 
 			return newState;
 
 		case GET_MESSAGES_FAIL:
-			newState.uploading = [];
-			newState.progress = 0;
-
-			return newState;
+			return state;
 
 		default:
 			return state;

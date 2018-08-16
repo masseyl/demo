@@ -9,6 +9,7 @@ const options = {
 };
 
 export const getMessages = async data => {
+	console.log("GET MESSAGE");
 	let localOptions = {
 		headers: {
 			"Content-Type": "application/json"
@@ -17,9 +18,7 @@ export const getMessages = async data => {
 	const url = `${API_URL}messages?limit=${data.payload.limit}&pageToken=${
 		data.payload.pageToken
 	}`;
-	console.log(url);
 	const response = await fetch(url, localOptions);
 	const json = await response.json();
-	console.log(json);
 	return json;
 };
