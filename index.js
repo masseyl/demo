@@ -2,13 +2,13 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require("path");
-// var sslRedirect = require("heroku-ssl-redirect");
+var sslRedirect = require("heroku-ssl-redirect");
 var fetch = require("node-fetch");
 
 const PORT = process.env.PORT || 5000;
 
 var app = express();
-// app.use(sslRedirect());
+app.use(sslRedirect());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.json({ limit: "100mb" }));
 app.use(cors());
@@ -36,10 +36,7 @@ app.get("/messages", (req, res) => {
 app.get("*", function(request, response) {
 	response.sendFile(path.resolve(__dirname, "./public/", "index.html"));
 });
+
 var server = app.listen(PORT, () => {
-	console.log(
-		`	console.log(path.resolve(__dirname, "..", "service-worker.js  __"`
-	);
-	console.log(path.resolve(__dirname, "./public/", "service-worker.js"));
 	console.log(`Really Listening on ${PORT}`);
 });

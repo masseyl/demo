@@ -1,1 +1,1 @@
-export const API_URL = "http://message-list.appspot.com/";
+export const API_URL = "https://g-messages.herokuapp.com/";
