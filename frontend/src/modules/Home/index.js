@@ -25,7 +25,7 @@ class Home extends Component {
 	onScroll = evt => {
 		const scrollHeight = evt.nativeEvent.target.scrollHeight;
 		const scrollTop = evt.nativeEvent.target.scrollTop;
-		if (scrollTop > scrollHeight * 0.5) {
+		if (scrollTop > scrollHeight * 0.4) {
 			if (this.props.messagesLoaded) {
 				this.getMessages();
 			}
