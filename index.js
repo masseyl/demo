@@ -8,7 +8,7 @@ var fetch = require("node-fetch");
 const PORT = process.env.PORT || 5000;
 
 var app = express();
-app.use(sslRedirect());
+// app.use(sslRedirect());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.json({ limit: "100mb" }));
 app.use(cors());
