@@ -2,7 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require("path");
-var sslRedirect = require("heroku-ssl-redirect");
+// var sslRedirect = require("heroku-ssl-redirect");
 var fetch = require("node-fetch");
 
 const PORT = process.env.PORT || 5000;
