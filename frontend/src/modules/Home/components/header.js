@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 const Header = props => {
 	return (
-		<Container>
+		<Container zIndex={props.zIndex} onClick={props.onClick}>
 			<Menu>
 				<Span>menu</Span>
 			</Menu>
@@ -17,6 +17,7 @@ const Header = props => {
 export default Header;
 
 const Container = styled.div`
+	z-index: ${props => props.zIndex};
 	position: fixed;
 	top: 20px;
 	right: 0;

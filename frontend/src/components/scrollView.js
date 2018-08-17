@@ -2,10 +2,15 @@ import React, { PureComponent } from "react";
 import styled from "styled-components";
 
 const ScrollView = props => {
-	return <Container onScroll={props.onScroll}>{props.children}</Container>;
+	return (
+		<Container zIndex={props.zIndex} onScroll={props.onScroll}>
+			{props.children}
+		</Container>
+	);
 };
 
 const Container = styled.div`
+	z-index: ${props => props.zIndex};
 	justify-content: center;
 	width: 100vw;
 	height: 100vh;

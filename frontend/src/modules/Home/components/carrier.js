@@ -2,12 +2,13 @@ import React, { PureComponent } from "react";
 import styled from "styled-components";
 
 const Carrier = props => {
-	return <Container />;
+	return <Container zIndex={props.zIndex} />;
 };
 
 export default Carrier;
 
 const Container = styled.div`
+	z-index: ${props => props.zIndex};
 	position: fixed;
 	top: 0;
 	right: 0;
