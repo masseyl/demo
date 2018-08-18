@@ -14,12 +14,12 @@ class Card extends PureComponent {
 			x: 0,
 			textHeight: "45px",
 			clamp: 3,
-			returnToZero: false
+			returnToZero: false,
+			playingNo: false
 		};
 	}
 	componentDidMount() {
 		if (this.props.placeHolder) {
-			console.log("PLACEHOLDER!!!!!", this.props.index);
 			setTimeout(
 				() =>
 					this.setState({
@@ -32,12 +32,22 @@ class Card extends PureComponent {
 		}
 	}
 
-	onSwipeState = () => {
-		this.setState({ returnToZero: false });
-	};
-
 	onSwipeMove = (position, event) => {
-		if (position.x > 250) {
+		const deltaX = position.x - this.lastX;
+		this.lastX = position.x;
+		if (position.x > 5) {
+			this.props.playSqueak(true);
+		} else {
+			this.props.playSqueak(false);
+		}
+
+		if (deltaX > 4 && position.x > 150) {
+			this.props.playNo(true), 500;
+		}
+		this.setState({ playingNo: true });
+
+		if (deltaX > 12 && position.x > 250) {
+			this.props.playNo(false);
 			this.props.removeMessage(this.props.index);
 		} else {
 			this.setState({
@@ -51,7 +61,10 @@ class Card extends PureComponent {
 			x: 0,
 			returnToZero: true
 		});
-		setTimeout(() => this.setState({ returnToZero: false }), 250);
+		setTimeout(() => {
+			this.setState({ returnToZero: false });
+			this.props.endSounds();
+		}, 250);
 	};
 
 	toggleHeight = () => {
@@ -71,6 +84,7 @@ class Card extends PureComponent {
 		const content = isPlaceHolder ? "" : this.props.card.content;
 		return (
 			<Swipe
+				allowMouseEvents
 				onSwipeMove={isPlaceHolder ? null : this.onSwipeMove}
 				onSwipeEnd={isPlaceHolder ? null : this.onSwipeEnd}
 			>
@@ -112,14 +126,13 @@ const Container = styled.div`
 	background-color: white;
 	transform: scale3d(
 			${props => {
-				console.log("Sacle: ", props.scaleX);
 				return props.scaleX;
 			}},
 			${props => props.scaleY},
 			1
 		)
 		translate3d(${props => props.x}px, 0, 0);
-	transition: transform ${props => (props.returnToZero ? 0.4 : 0.05)}s;
+	transition: transform ${props => (props.returnToZero ? 0.2 : 0.05)}s;
 `;
 
 const Image = styled.img`

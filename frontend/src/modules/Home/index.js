@@ -13,37 +13,52 @@ class Home extends Component {
 	constructor(props) {
 		super(props);
 		this.state = { loadMessages: true };
-	}
-
-	componentDidCatch(error, info) {
-		// Display fallback UI
-		this.setState({ hasError: true });
-		// You can also log the error to an error reporting service
-		console.log(error, info);
+		this.audioRef1 = React.createRef();
+		this.audioRef2 = React.createRef();
+		this.audioRef3 = React.createRef();
 	}
 
 	componentDidMount() {
 		this.props.getMessages(25, this.props.pageToken);
 	}
 
+	getMessages = debounce(() => {
+		this.props.getMessages(50, this.props.pageToken);
+	}, 500);
+
+	endSounds = () => {
+		this.audioRef2.current.currentTime = 0;
+		this.audioRef2.current.pause();
+		this.audioRef1.current.pause();
+	};
+
 	removeMessage = index => {
+		this.endSounds();
+		this.audioRef3.current.play();
+
 		this.setState({
 			deleteMessageIndex: index
 		});
-		console.log(index);
 		this.props.removeMessage(index || 1);
-		setTimeout(
-			() =>
-				this.setState({
-					deleteMessageIndex: -1
-				}),
-			500
-		);
+		setTimeout(() => {
+			this.setState({
+				deleteMessageIndex: -1
+			});
+		}, 1000);
 	};
 
-	getMessages = debounce(() => {
-		this.props.getMessages(50, this.props.pageToken);
-	}, 100);
+	playSqueak = state => {
+		if (state) {
+			this.audioRef1.current.play();
+		} else {
+			this.audioRef1.current.pause();
+		}
+	};
+
+	playNo = state => {
+		this.audioRef2.current.currentTime = 0;
+		this.audioRef2.current.play();
+	};
 
 	onScroll = evt => {
 		const scrollHeight = evt.nativeEvent.target.scrollHeight;
@@ -60,6 +75,9 @@ class Home extends Component {
 		console.log(content.length);
 		return (
 			<Background>
+				<audio ref={this.audioRef1} src={"./assets/long squeak.mp3"} loop />
+				<audio ref={this.audioRef2} src={"./assets/NOooooo.mp3"} />
+				<audio ref={this.audioRef3} src={"./assets/pop.mp3"} />
 				<Carrier zIndex={3} />
 				<Header zIndex={2} />
 				<ScrollView zIndex={1} onScroll={this.onScroll}>
@@ -72,10 +90,13 @@ class Home extends Component {
 							<div key={shortid.generate()}>
 								{placeHolder && <Card placeHolder />}
 								<Card
+									card={card}
 									key={shortid.generate()}
 									index={index}
-									card={card}
+									playNo={this.playNo}
+									playSqueak={this.playSqueak}
 									removeMessage={this.removeMessage}
+									endSounds={this.endSounds}
 								/>
 							</div>
 						);

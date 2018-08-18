@@ -1,10 +1,19 @@
 import React, { PureComponent } from "react";
 import styled from "styled-components";
 
+const hi = () => {
+	const hamburger = prompt("Hi! I'm a HAMBURGER! What are you?! \n\n:)");
+
+	window.alert(
+		"Ohhhhh..... I LOVE " +
+			hamburger +
+			"\n\nBTW: You should hire Lance. He's a happy guy. \n\n :)"
+	);
+};
 const Header = props => {
 	return (
 		<Container zIndex={props.zIndex} onClick={props.onClick}>
-			<Menu>
+			<Menu onClick={hi}>
 				<Span>menu</Span>
 			</Menu>
 			<Title>
