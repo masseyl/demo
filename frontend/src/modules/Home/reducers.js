@@ -3,9 +3,9 @@ import {
 	GET_MESSAGES_SUCCESS,
 	GET_MESSAGES_FAIL,
 	ON_PROGRESS,
-	REMOVE_MESSAGE
+	REMOVE_MESSAGE,
+	UNDO_REMOVE_MESSAGE
 } from "./constants";
-import Immutable from "seamless-immutable";
 
 let INITIAL_STATE = {
 	messages: [],
@@ -13,8 +13,9 @@ let INITIAL_STATE = {
 };
 
 const moduleReducer = (state = INITIAL_STATE, action) => {
-	let newState = Immutable.asMutable(state, { deep: true });
-	let messages = Immutable.asMutable(newState.messages);
+	let newState = { ...state };
+	let messages = [...newState.messages];
+	// let messages = Immutable.asMutable(newState.messages);
 	switch (action.type) {
 		case GET_MESSAGES_FAIL:
 			newState.messagesLoaded = false;
@@ -32,10 +33,20 @@ const moduleReducer = (state = INITIAL_STATE, action) => {
 		case GET_MESSAGES_FAIL:
 			return state;
 
+		case UNDO_REMOVE_MESSAGE:
+			newState.removingMessage = false;
+
+			return newState;
+
 		case REMOVE_MESSAGE:
-			messages.splice(action.index, 1);
+			messages = [
+				...messages.slice(0, action.index),
+				...messages.slice(action.index + 1)
+			];
 			newState.messages = messages;
 			newState.count -= 1;
+			newState.removingMessage = true;
+
 			return newState;
 
 		default:

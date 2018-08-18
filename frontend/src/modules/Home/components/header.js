@@ -1,27 +1,31 @@
 import React, { PureComponent } from "react";
 import styled from "styled-components";
 
-const hi = () => {
-	const hamburger = prompt("Hi! I'm a HAMBURGER! What are you?! \n\n:)");
+class Header extends PureComponent {
+	hi = () => {
+		const hamburger = prompt("Hi! I'm a HAMBURGER! What are you?! \n\n:)");
 
-	window.alert(
-		"Ohhhhh..... I LOVE " +
-			hamburger +
-			"\n\nBTW: You should hire Lance. He's a happy guy. \n\n :)"
-	);
-};
-const Header = props => {
-	return (
-		<Container zIndex={props.zIndex} onClick={props.onClick}>
-			<Menu onClick={hi}>
-				<Span>menu</Span>
-			</Menu>
-			<Title>
-				<Span>Title</Span>
-			</Title>
-		</Container>
-	);
-};
+		if (hamburger) {
+			window.alert(
+				"Ohhhhh..... I LOVE " +
+					hamburger +
+					"\n\nBTW: You should hire Lance. He's a good guy. \n\n :)"
+			);
+		}
+	};
+	render() {
+		return (
+			<Container zIndex={this.props.zIndex} onClick={this.props.onClick}>
+				<Menu onClick={this.hi}>
+					<Hamburger src="./assets/hamburger.png" />
+				</Menu>
+				<Title>
+					<Span>&lt;==&nbsp;&nbsp;Messages!</Span>
+				</Title>
+			</Container>
+		);
+	}
+}
 
 export default Header;
 
@@ -39,8 +43,18 @@ const Container = styled.div`
 	background-color: rgba(96, 64, 176, 0.99);
 `;
 
+const Hamburger = styled.img`
+	width: 30px;
+	height: 30px;
+`;
+const LeftArrow = styled.img`
+	width: 30px;
+	height: 30px;
+	opacity: ${props => props.opacity};
+`;
 const Menu = styled.div`
 	flex: 1;
+	margin-right: 14px;
 	margin-left: 14px;
 `;
 const Title = styled.div`
