@@ -187,14 +187,14 @@ const CardContainer = styled.div`
 const Container = styled.div`
 	width: 92%;
 	margin-left: 4%;
-	margin-bottom: 7px;
+	margin-bottom: 3px;
 	background-size: 80px 80px;
 	background-image: url(${props => props.background});
 	background-repeat: no-repeat;
 	background-position: 10px 10px;
 	background-color: red;
-	box-shadow: ${props => (props.inset ? "2px 2px 4px" : "4px 4px 8px")}
-		${props => (!props.inset ? "#888888" : "pink")}
+	box-shadow: ${props => (props.inset ? "4px 4px 8px" : "0 1px 4px")}
+		${props => (!props.inset ? "#888888" : "white")}
 		${props => (props.inset ? "inset" : null)};
 `;
 
