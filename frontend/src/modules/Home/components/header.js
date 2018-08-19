@@ -5,7 +5,9 @@ class Header extends PureComponent {
 	hi = () => {
 		const hamburger = prompt("Hi! I'm a HAMBURGER! What are you?! \n\n:)");
 
-		const message = hamburger ? "Ohhhhh..... I LOVE " + hamburger + "BTW:" : "";
+		const message = hamburger
+			? "Ohhhhh..... I LOVE " + hamburger + " \n\nBTW:"
+			: "";
 		window.alert(message + "You should hire Lance. He's a good guy. \n\n:)");
 	};
 	render() {
@@ -15,7 +17,7 @@ class Header extends PureComponent {
 					<Hamburger src="./assets/hamburger.png" />
 				</Menu>
 				<Title>
-					<Span>&lt;==&nbsp;&nbsp;Messages!</Span>
+					<Span>&lt;==&nbsp;&nbsp;Secret Messages!</Span>
 				</Title>
 			</Container>
 		);

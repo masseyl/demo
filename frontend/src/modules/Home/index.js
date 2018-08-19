@@ -27,7 +27,7 @@ class Home extends Component {
 	}
 
 	componentDidMount() {
-		this.props.getMessages(25, this.props.pageToken);
+		this.props.getMessages(100, this.props.pageToken);
 	}
 
 	componentWillUnmount() {
@@ -38,7 +38,7 @@ class Home extends Component {
 	onScroll = evt => {
 		const scrollHeight = evt.nativeEvent.target.scrollHeight;
 		const scrollTop = evt.nativeEvent.target.scrollTop;
-		if (scrollTop > scrollHeight * 0.4) {
+		if (scrollTop > scrollHeight * 0.7) {
 			if (this.props.messagesLoaded) {
 				this.debounceGetMessages();
 			}

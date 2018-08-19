@@ -33,7 +33,7 @@ class Card extends PureComponent {
 						scaleY: 0,
 						returnToZero: true
 					}),
-				100
+				1
 			);
 		}
 	}
@@ -181,7 +181,7 @@ const CardContainer = styled.div`
 			1
 		)
 		translate3d(${props => props.x}px, 0, 0);
-	transition: transform ${props => (props.returnToZero ? 0.5 : 0.05)}s ease-out;
+	transition: transform ${props => (props.returnToZero ? 0.2 : 0.05)}s ease-out;
 `;
 
 const Container = styled.div`
