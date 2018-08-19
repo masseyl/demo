@@ -4,7 +4,6 @@ import { ActionCreators } from "redux-undo";
 import { connect } from "react-redux";
 import { debounce } from "lodash";
 import shortid from "shortid";
-import { Helmet } from "react-helmet";
 
 import Background from "../../components/background";
 import Carrier from "../../components/carrier";
@@ -109,13 +108,11 @@ class Home extends Component {
 	render() {
 		const content = this.props.messages;
 		if (!this.state.confirmed) return null;
+
 		return (
 			<Background>
-				<Helmet>
-					<meta name="theme-color" content="rgba(76, 51, 141, 0.99)" />
-				</Helmet>
-				<Carrier zIndex={3} />
 				<Undo onClick={this.undoDelete} showHide={this.props.removingMessage} />
+				<Carrier zIndex={3} />
 				<Header zIndex={2} chaos={this.chaos} />
 				<ScrollView zIndex={1} onScroll={this.onScroll}>
 					{content.map((card, index) => {
