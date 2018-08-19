@@ -111,10 +111,10 @@ class Home extends Component {
 		if (!this.state.confirmed) return null;
 		return (
 			<Background>
-				<Carrier />
 				<Helmet>
 					<meta name="theme-color" content="rgba(76, 51, 141, 0.99)" />
 				</Helmet>
+				<Carrier zIndex={3} />
 				<Undo onClick={this.undoDelete} showHide={this.props.removingMessage} />
 				<Header zIndex={2} chaos={this.chaos} />
 				<ScrollView zIndex={1} onScroll={this.onScroll}>
