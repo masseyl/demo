@@ -4,7 +4,7 @@ import styled from "styled-components";
 const Loading = props => {
 	return (
 		<Container showHide={props.showHide}>
-			<Spinner src="./assets/spinner.gif" />
+			<Spinner src="./assets/spinner.apng" />
 		</Container>
 	);
 };
