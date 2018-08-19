@@ -19,8 +19,10 @@ class Card extends PureComponent {
 			scaleX: 1,
 			scaleY: 1,
 			x: props.chaos ? this.crazyPlace : 0,
-			textHeight: "120px",
+			textHeight: "45px",
 			clamp: 3,
+			scroll: "hidden",
+			isCollapsed: true,
 			returnToZero: props.chaos,
 			background: backgrounds[backgroundImage]
 		};
@@ -91,11 +93,13 @@ class Card extends PureComponent {
 	};
 
 	toggleHeight = () => {
-		const expanded = this.state.textHeight === "120px";
+		const isCollapsed = !this.state.isCollapsed;
+		//flip state
 		this.setState({
-			textHeight: expanded ? "45px" : "120px",
-			clamp: expanded ? 3 : -1,
-			scroll: expanded ? "hidden" : "scroll"
+			textHeight: isCollapsed ? "120px" : "45px",
+			clamp: isCollapsed ? -1 : 3,
+			scroll: isCollapsed ? "scroll" : "hidden",
+			isCollapsed
 		});
 	};
 
@@ -106,7 +110,7 @@ class Card extends PureComponent {
 	whatToDo = xx => {
 		const deltaX = xx - this.lastX;
 		const velocity = this.calculateVelocity(deltaX);
-		const squeakOffset = this.props.chaos ? 10 : 1;
+		const squeakOffset = this.props.chaos ? 20 : 4;
 		this.lastX = xx;
 		if (xx > squeakOffset) {
 			this.props.playSqueak(true);
