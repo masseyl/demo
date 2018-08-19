@@ -105,16 +105,13 @@ class Card extends PureComponent {
 			this.props.playSqueak(false);
 		}
 
-		if (
-			(position.x > this.state.width * 0.8 || velocity > 1.6) &
-			!this.state.removingMessage
-		) {
+		if (position.x > this.state.width * 0.8 || velocity > 1.6) {
 			this.props.removeMessage(this.props.index);
 			this.velocityArray = [0];
 			this.lastX = 0;
 		} else {
 			this.setState({
-				x: position.x
+				x: position.x > 0 ? position.x : 0
 			});
 		}
 	};

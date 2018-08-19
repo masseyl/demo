@@ -3,7 +3,6 @@ import {
 	GET_MESSAGES_SUCCESS,
 	GET_MESSAGES_FAIL,
 	HIDE_UNDO,
-	ON_PROGRESS,
 	REMOVE_MESSAGE
 } from "./constants";
 

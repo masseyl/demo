@@ -1,26 +1,29 @@
 import React, { Component } from "react";
-import { Route } from "react-router-dom";
+
+import { ActionCreators } from "redux-undo";
 import { connect } from "react-redux";
 import { debounce } from "lodash";
 import shortid from "shortid";
-import { ActionCreators } from "redux-undo";
 
 import Background from "../../components/background";
-import Card from "../../components/card";
+import Carrier from "../../components/carrier";
 import ScrollView from "../../components/scrollView";
 
+import Card from "./components/card";
 import Header from "./components/header";
-import Carrier from "./components/carrier";
-import Undo from "./undo";
+import Undo from "./components/undo";
 
 import { getMessages, removeMessage } from "./actions";
 
 class Home extends Component {
 	constructor(props) {
 		super(props);
-		this.state = { loadMessages: true };
+		this.state = {
+			deleteMessageIndex: -1
+		};
 		this.audioRef1 = React.createRef();
 		this.audioRef2 = React.createRef();
+		this.audioRef3 = React.createRef();
 	}
 
 	componentDidMount() {
@@ -79,6 +82,7 @@ class Home extends Component {
 	};
 
 	undoDelete = () => {
+		this.audioRef3.current.play();
 		this.props.undo();
 		this.setState({
 			deleteMessageIndex: -1
@@ -90,8 +94,6 @@ class Home extends Component {
 		return (
 			<Background>
 				<Undo onClick={this.undoDelete} showHide={this.props.removingMessage} />
-				<audio ref={this.audioRef1} src={"./assets/long squeak.mp3"} loop />
-				<audio ref={this.audioRef2} src={"./assets/pop.mp3"} />
 				<Carrier zIndex={3} />
 				<Header zIndex={2} />
 				<ScrollView zIndex={1} onScroll={this.onScroll}>
@@ -104,19 +106,21 @@ class Home extends Component {
 							<div key={shortid.generate()}>
 								{placeHolder && <Card placeHolder />}
 								<Card
-									card={card}
-									key={shortid.generate()}
-									index={index}
-									playSqueak={this.playSqueak}
-									removeMessage={this.removeMessage}
 									onSwipeEnd={this.endSounds}
+									card={card}
+									index={index}
+									key={shortid.generate()}
+									playSqueak={this.playSqueak}
 									removingMessage={this.props.removingMessage}
-									done={this.messageRemoved}
+									removeMessage={this.removeMessage}
 								/>
 							</div>
 						);
 					})}
 				</ScrollView>
+				<audio ref={this.audioRef1} src={"./assets/long squeak.mp3"} loop />
+				<audio ref={this.audioRef2} src={"./assets/pop.mp3"} />
+				<audio ref={this.audioRef3} src={"./assets/revpop.mp3"} />
 			</Background>
 		);
 	}

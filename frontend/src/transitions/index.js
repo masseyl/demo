@@ -18,7 +18,7 @@ export default ({
 			timeout: duration || 500
 		})}
 	>
-		<CSSTransition timeout={duration || 500} key={pageKey} >
+		<CSSTransition timeout={duration || 500} key={pageKey}>
 			{/* you should wrap CSSTransition child in a div in case it could be null
       see https://github.com/reactjs/react-transition-group/issues/208 */}
 			<div>{children}</div>
@@ -26,11 +26,4 @@ export default ({
 	</TransitionGroup>
 );
 
-export { default as next } from "./next";
-export { default as previous } from "./previous";
-export { default as slide } from "./slide";
 export { default as scale } from "./scale";
-export { default as left } from "./left";
-export { default as right } from "./right";
-export { default as fade } from "./fade";
-export { default as fadeOutIn } from "./fadeOutIn";

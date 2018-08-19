@@ -1,7 +1,9 @@
 import React, { Component } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
-import { hideUndo } from "./actions";
+
+import { hideUndo } from "../actions";
+
 class Undo extends Component {
 	componentDidUpdate() {
 		if (this.props.showHide) {
@@ -11,14 +13,15 @@ class Undo extends Component {
 			}, 5000);
 		}
 	}
-	onClick = () => {
-		this.props.onClick();
-		this.props.hideUndo();
-	};
 
 	componentWillUnmount() {
 		clearInterval(this.undoTimer);
 	}
+
+	onClick = () => {
+		this.props.onClick();
+		this.props.hideUndo();
+	};
 
 	render() {
 		return (
@@ -59,6 +62,7 @@ const Container = styled.div`
 	align-items: center;
 	justify-content: center;
 `;
+
 const Message = styled.p`
 	color: red;
 	margin-left: 4%;
