@@ -49,11 +49,11 @@ export default connect(
 
 const Container = styled.div`
 	position: absolute;
+	top: 7px;
 	visibility: ${props => (props.showHide ? "visible" : "hidden")}
 	z-index: 9999;
 	height: 40px;
 	width: 92%;
-	top: 7px;
 	box-shadow: 2px 5px 40px 0;
 	background-color: black;
 	border-radius: 2px;

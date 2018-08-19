@@ -8,13 +8,20 @@ class Card extends PureComponent {
 		super(props);
 		const backgroundImage = Math.floor(Math.random() * backgrounds.length);
 
+		if (props.chaos) {
+			const crazyTime = Math.ceil(Math.random() * 5000);
+			const crazyPlace = Math.ceil(Math.random() * 1000);
+			this.chaosTimer = setTimeout(() => {
+				this.whatToDo(crazyPlace);
+			}, crazyTime);
+		}
 		this.state = {
 			scaleX: 1,
 			scaleY: 1,
-			x: 0,
+			x: props.chaos ? this.crazyPlace : 0,
 			textHeight: "120px",
 			clamp: 3,
-			returnToZero: false,
+			returnToZero: props.chaos,
 			background: backgrounds[backgroundImage]
 		};
 	}
@@ -39,6 +46,7 @@ class Card extends PureComponent {
 	}
 
 	componentWillUnmount = () => {
+		clearInterval(this.chaosTimer);
 		clearInterval(this.timeout);
 		clearInterval(this.placeholderTimer);
 		window.removeEventListener("resize", this.updateWindowDimensions);
@@ -49,7 +57,7 @@ class Card extends PureComponent {
 	};
 
 	onSwipeMove = (position, event) => {
-		this.whatToDo(position);
+		this.whatToDo(position.x);
 	};
 
 	onSwipeEnd = event => {
@@ -95,23 +103,24 @@ class Card extends PureComponent {
 		this.setState({ width: window.innerWidth });
 	};
 
-	whatToDo = position => {
-		const deltaX = position.x - this.lastX;
+	whatToDo = xx => {
+		const deltaX = xx - this.lastX;
 		const velocity = this.calculateVelocity(deltaX);
-		this.lastX = position.x;
-		if (position.x > 1) {
+		const squeakOffset = this.props.chaos ? 10 : 1;
+		this.lastX = xx;
+		if (xx > squeakOffset) {
 			this.props.playSqueak(true);
 		} else {
 			this.props.playSqueak(false);
 		}
 
-		if (position.x > this.state.width * 0.8 || velocity > 1.6) {
+		if (xx > this.state.width * 0.8 || velocity > 1.6) {
 			this.props.removeMessage(this.props.index);
 			this.velocityArray = [0];
 			this.lastX = 0;
 		} else {
 			this.setState({
-				x: position.x > 0 ? position.x : 0
+				x: xx > 0 ? xx : 0
 			});
 		}
 	};

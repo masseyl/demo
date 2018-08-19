@@ -2,13 +2,32 @@ import React, { PureComponent } from "react";
 import styled from "styled-components";
 
 class Header extends PureComponent {
+	constructor(props) {
+		super(props);
+		this.audioRef = React.createRef();
+		this.state = { message: "<==  Secret Messages!" };
+	}
+
+	componentWillUnmount() {
+		clearInterval(this.chaosTimer);
+	}
 	hi = () => {
 		const hamburger = prompt("Hi! I'm a HAMBURGER! What are you?! \n\n:)");
-
+		this.props.chaos
+			? this.audioRef.current.play()
+			: this.audioRef.current.pause();
 		const message = hamburger
 			? "Ohhhhh..... I LOVE " + hamburger + " \n\nBTW:"
 			: "";
 		window.alert(message + "You should hire Lance. He's a good guy. \n\n:)");
+
+		this.props.chaos(true);
+		this.setState({ message: "BWAAAHAHAAAAH!!!" });
+		this.chaosTimer = setTimeout(() => {
+			this.props.chaos(false);
+			this.audioRef.current.pause();
+			this.setState({ message: "<== AGAIN" });
+		}, 150 * 1000);
 	};
 	render() {
 		return (
@@ -17,8 +36,9 @@ class Header extends PureComponent {
 					<Hamburger src="./assets/hamburger.png" />
 				</Menu>
 				<Title>
-					<Span>&lt;==&nbsp;&nbsp;Secret Messages!</Span>
+					<Span>{this.state.message}</Span>
 				</Title>
+				<audio ref={this.audioRef} src={"./assets/king.mp3"} />
 			</Container>
 		);
 	}

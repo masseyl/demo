@@ -1,3 +1,4 @@
+import moment from "moment";
 import {
 	GET_MESSAGES,
 	GET_MESSAGES_SUCCESS,
@@ -16,7 +17,7 @@ const moduleReducer = (state = INITIAL_STATE, action) => {
 	let messages = [...newState.messages];
 	// let messages = Immutable.asMutable(newState.messages);
 	switch (action.type) {
-		case GET_MESSAGES_FAIL:
+		case GET_MESSAGES:
 			newState.messagesLoaded = false;
 
 			return newState;
@@ -24,13 +25,20 @@ const moduleReducer = (state = INITIAL_STATE, action) => {
 		case GET_MESSAGES_SUCCESS:
 			newState.count = action.response.count;
 			newState.pageToken = action.response.pageToken;
-			newState.messages = newState.messages.concat(action.response.messages);
+			messages = messages.concat(action.response.messages);
+			messages.sort((a, b) => {
+				if (moment(a.updated).isSame(b.updated)) return 0;
+				if (moment(a.updated).isBefore(b.updated)) return -1;
+				return 1;
+			});
+			newState.messages = messages;
 			newState.messagesLoaded = true;
 
 			return newState;
 
 		case GET_MESSAGES_FAIL:
-			return state;
+			newState.messagesLoaded = true;
+			return newState;
 
 		case HIDE_UNDO:
 			newState.undoable = false;

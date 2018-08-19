@@ -12,6 +12,7 @@ import ScrollView from "../../components/scrollView";
 import Card from "./components/card";
 import Header from "./components/header";
 import Undo from "./components/undo";
+import Loading from "./components/loading";
 
 import { getMessages, removeMessage } from "./actions";
 
@@ -19,7 +20,8 @@ class Home extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			deleteMessageIndex: -1
+			deleteMessageIndex: -1,
+			confirmed: false
 		};
 		this.audioRef1 = React.createRef();
 		this.audioRef2 = React.createRef();
@@ -27,7 +29,11 @@ class Home extends Component {
 	}
 
 	componentDidMount() {
-		this.props.getMessages(100, this.props.pageToken);
+		this.props.getMessages(10, this.props.pageToken);
+		if (!this.state.confirmed) {
+			const confirmationPrompt = prompt("Please enter THE CODE");
+			this.setState({ confirmed: confirmationPrompt === "fluffy" });
+		}
 	}
 
 	componentWillUnmount() {
@@ -38,13 +44,16 @@ class Home extends Component {
 	onScroll = evt => {
 		const scrollHeight = evt.nativeEvent.target.scrollHeight;
 		const scrollTop = evt.nativeEvent.target.scrollTop;
-		if (scrollTop > scrollHeight * 0.7) {
+		if (scrollTop > scrollHeight * 0.4) {
 			if (this.props.messagesLoaded) {
 				this.debounceGetMessages();
 			}
 		}
 	};
 
+	chaos = chaos => {
+		this.setState({ chaos });
+	};
 	debounceGetMessages = debounce(() => {
 		this.props.getMessages(50, this.props.pageToken);
 	}, 500);
@@ -68,6 +77,10 @@ class Home extends Component {
 
 	removeMessage = index => {
 		this.endSounds();
+		if (this.state.chaos) {
+			this.audioRef2.current.volume = 0.1;
+			this.audioRef1.current.volume = 0.5;
+		}
 		this.audioRef2.current.play();
 
 		this.setState({
@@ -79,6 +92,9 @@ class Home extends Component {
 				deleteMessageIndex: -1
 			});
 		}, 1000);
+		if (this.props.messages.length < 3) {
+			this.props.getMessages(50, this.props.pageToken);
+		}
 	};
 
 	undoDelete = () => {
@@ -91,11 +107,12 @@ class Home extends Component {
 
 	render() {
 		const content = this.props.messages;
+		if (!this.state.confirmed) return null;
 		return (
 			<Background>
 				<Undo onClick={this.undoDelete} showHide={this.props.removingMessage} />
 				<Carrier zIndex={3} />
-				<Header zIndex={2} />
+				<Header zIndex={2} chaos={this.chaos} />
 				<ScrollView zIndex={1} onScroll={this.onScroll}>
 					{content.map((card, index) => {
 						let placeHolder = false;
@@ -108,6 +125,7 @@ class Home extends Component {
 								<Card
 									onSwipeEnd={this.endSounds}
 									card={card}
+									chaos={this.state.chaos}
 									index={index}
 									key={shortid.generate()}
 									playSqueak={this.playSqueak}
@@ -118,6 +136,7 @@ class Home extends Component {
 						);
 					})}
 				</ScrollView>
+				<Loading showHide={!this.props.messagesLoaded} />
 				<audio ref={this.audioRef1} src={"./assets/long squeak.mp3"} loop />
 				<audio ref={this.audioRef2} src={"./assets/pop.mp3"} />
 				<audio ref={this.audioRef3} src={"./assets/revpop.mp3"} />
