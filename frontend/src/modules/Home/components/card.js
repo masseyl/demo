@@ -125,7 +125,7 @@ class Card extends PureComponent {
 			? ""
 			: moment(this.props.card.updated).fromNow();
 		return (
-			<Container background={this.state.background}>
+			<Container background={this.state.background} inset={this.state.x > 0}>
 				<Swipe
 					allowMouseEvents
 					onSwipeMove={isPlaceHolder ? null : this.onSwipeMove}
@@ -193,6 +193,9 @@ const Container = styled.div`
 	background-repeat: no-repeat;
 	background-position: 10px 10px;
 	background-color: red;
+	box-shadow: ${props => (props.inset ? "2px 2px 4px" : "4px 4px 8px")}
+		${props => (!props.inset ? "#888888" : "pink")}
+		${props => (props.inset ? "inset" : null)};
 `;
 
 const ElapsedTime = styled.p`
