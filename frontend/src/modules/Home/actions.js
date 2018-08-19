@@ -1,4 +1,4 @@
-import { GET_MESSAGES, REMOVE_MESSAGE, UNDO_REMOVE_MESSAGE } from "./constants";
+import { GET_MESSAGES, REMOVE_MESSAGE, HIDE_UNDO } from "./constants";
 
 export function getMessages(limit, pageToken) {
 	return {
@@ -14,8 +14,8 @@ export function removeMessage(index) {
 	};
 }
 
-export function undoRemoveMessage() {
+export function hideUndo() {
 	return {
-		type: UNDO_REMOVE_MESSAGE
+		type: HIDE_UNDO
 	};
 }

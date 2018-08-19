@@ -11,9 +11,9 @@ import ScrollView from "../../components/scrollView";
 
 import Header from "./components/header";
 import Carrier from "./components/carrier";
-import Undo from "./components/undo";
+import Undo from "./undo";
 
-import { getMessages, removeMessage, undoRemoveMessage } from "./actions";
+import { getMessages, removeMessage } from "./actions";
 
 class Home extends Component {
 	constructor(props) {
@@ -76,14 +76,10 @@ class Home extends Component {
 				deleteMessageIndex: -1
 			});
 		}, 1000);
-		this.undoTimer = setTimeout(() => {
-			this.props.undoRemoveMessage();
-		}, 5000);
 	};
 
 	undoDelete = () => {
 		this.props.undo();
-		this.props.undoRemoveMessage();
 		this.setState({
 			deleteMessageIndex: -1
 		});
@@ -93,7 +89,7 @@ class Home extends Component {
 		const content = this.props.messages;
 		return (
 			<Background>
-				{this.props.removingMessage && <Undo onClick={this.undoDelete} />}
+				<Undo onClick={this.undoDelete} showHide={this.props.removingMessage} />
 				<audio ref={this.audioRef1} src={"./assets/long squeak.mp3"} loop />
 				<audio ref={this.audioRef2} src={"./assets/pop.mp3"} />
 				<Carrier zIndex={3} />
@@ -139,9 +135,6 @@ function mapPropsToDispatch(dispatch) {
 	return {
 		getMessages: (limit, pageToken) => dispatch(getMessages(limit, pageToken)),
 		removeMessage: index => dispatch(removeMessage(index)),
-		undoRemoveMessage: () => {
-			dispatch(undoRemoveMessage());
-		},
 		undo: () => dispatch(ActionCreators.undo())
 	};
 }

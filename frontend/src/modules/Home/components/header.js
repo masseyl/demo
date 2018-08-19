@@ -5,13 +5,8 @@ class Header extends PureComponent {
 	hi = () => {
 		const hamburger = prompt("Hi! I'm a HAMBURGER! What are you?! \n\n:)");
 
-		if (hamburger) {
-			window.alert(
-				"Ohhhhh..... I LOVE " +
-					hamburger +
-					"\n\nBTW: You should hire Lance. He's a good guy. \n\n :)"
-			);
-		}
+		const message = hamburger ? "Ohhhhh..... I LOVE " + hamburger + "BTW:" : "";
+		window.alert(message + "You should hire Lance. He's a good guy. \n\n:)");
 	};
 	render() {
 		return (
@@ -44,8 +39,8 @@ const Container = styled.div`
 `;
 
 const Hamburger = styled.img`
-	width: 30px;
-	height: 30px;
+	width: 20px;
+	height: 25px;
 `;
 const LeftArrow = styled.img`
 	width: 30px;

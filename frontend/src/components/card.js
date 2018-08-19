@@ -12,7 +12,7 @@ class Card extends PureComponent {
 			scaleX: 1,
 			scaleY: 1,
 			x: 0,
-			textHeight: "45px",
+			textHeight: "120px",
 			clamp: 3,
 			returnToZero: false,
 			background: backgrounds[backgroundImage]
@@ -23,6 +23,7 @@ class Card extends PureComponent {
 		this.velocityArray = [0];
 		this.lastX = 0;
 		this.updateWindowDimensions();
+		this.toggleHeight();
 		window.addEventListener("resize", this.updateWindowDimensions);
 		if (this.props.placeHolder) {
 			this.placeholderTimer = setTimeout(
@@ -82,16 +83,18 @@ class Card extends PureComponent {
 	};
 
 	toggleHeight = () => {
-		const expand = this.state.textHeight !== "120px";
+		const expanded = this.state.textHeight === "120px";
 		this.setState({
-			textHeight: expand ? "120px" : "45px",
-			clamp: expand ? 3 : -1,
-			scroll: expand ? "scroll" : "hidden"
+			textHeight: expanded ? "45px" : "120px",
+			clamp: expanded ? 3 : -1,
+			scroll: expanded ? "hidden" : "scroll"
 		});
 	};
+
 	updateWindowDimensions = () => {
 		this.setState({ width: window.innerWidth });
 	};
+
 	whatToDo = position => {
 		const deltaX = position.x - this.lastX;
 		const velocity = this.calculateVelocity(deltaX);
@@ -103,7 +106,7 @@ class Card extends PureComponent {
 		}
 
 		if (
-			(position.x > this.state.width * 0.5 || velocity > 1.6) &
+			(position.x > this.state.width * 0.8 || velocity > 1.6) &
 			!this.state.removingMessage
 		) {
 			this.props.removeMessage(this.props.index);
@@ -125,39 +128,38 @@ class Card extends PureComponent {
 			? ""
 			: moment(this.props.card.updated).fromNow();
 		return (
-			<Swipe
-				allowMouseEvents
-				onSwipeMove={isPlaceHolder ? null : this.onSwipeMove}
-				onSwipeEnd={isPlaceHolder ? null : this.onSwipeEnd}
-			>
-				<Container
-					amPlaceholder={this.props.placeHolder}
-					x={this.state.x}
-					returnToZero={this.state.returnToZero}
-					scaleX={this.state.scaleX}
-					scaleY={this.state.scaleY}
+			<Container background={this.state.background}>
+				<Swipe
+					allowMouseEvents
+					onSwipeMove={isPlaceHolder ? null : this.onSwipeMove}
+					onSwipeEnd={isPlaceHolder ? null : this.onSwipeEnd}
 				>
-					<TopRow>
-						<Image src={"http://message-list.appspot.com" + photo} />
-						<NameBox>
-							<Author>{author}</Author>
-							<Duration>{updated}</Duration>
-						</NameBox>
-					</TopRow>
-					<Text
-						onClick={this.toggleHeight}
-						clamp={this.state.clamp}
-						height={this.state.textHeight}
-						scroll={this.state.scroll}
-						onScroll={this.onScroll}
+					<CardContainer
+						amPlaceholder={this.props.placeHolder}
+						x={this.state.x}
+						returnToZero={this.state.returnToZero}
+						scaleX={this.state.scaleX}
+						scaleY={this.state.scaleY}
 					>
-						{content}
-					</Text>
-				</Container>
-				<Background>
-					<BackgroundImage src={this.state.background} />
-				</Background>
-			</Swipe>
+						<TopRow>
+							<Image src={"http://message-list.appspot.com" + photo} />
+							<NameBox>
+								<Author>{author}</Author>
+								<ElapsedTime>{updated}</ElapsedTime>
+							</NameBox>
+						</TopRow>
+						<Text
+							onClick={this.toggleHeight}
+							clamp={this.state.clamp}
+							height={this.state.textHeight}
+							scroll={this.state.scroll}
+							onScroll={this.onScroll}
+						>
+							{content}
+						</Text>
+					</CardContainer>
+				</Swipe>
+			</Container>
 		);
 	}
 }
@@ -171,24 +173,7 @@ const Author = styled.div`
 	color: rgba(22, 22, 22, 0.7);
 `;
 
-const Background = styled.div`
-	position: relative;
-	width: 92%;
-	margin-left: 4%;
-`;
-
-const BackgroundImage = styled.img`
-	flex: 1;
-	position: absolute;
-	width: 80px;
-	height: 80px;
-	margin: 10px;
-`;
-
-const Container = styled.div`
-	width: 88%;
-	margin-left:4%
-	margin-bottom: 7px;
+const CardContainer = styled.div`
 	padding: 7px;
 	background-color: white;
 	transform: scale3d(
@@ -202,7 +187,18 @@ const Container = styled.div`
 	transition: transform ${props => (props.returnToZero ? 0.5 : 0.05)}s ease-out;
 `;
 
-const Duration = styled.p`
+const Container = styled.div`
+	width: 92%;
+	margin-left: 4%;
+	margin-bottom: 7px;
+	background-size: 80px 80px;
+	background-image: url(${props => props.background});
+	background-repeat: no-repeat;
+	background-position: 10px 10px;
+	background-color: red;
+`;
+
+const ElapsedTime = styled.p`
 	font-size: 12px;
 	color: rgba(99, 99, 99, 0.6);
 	border-width: 1px;
@@ -223,10 +219,9 @@ const NameBox = styled.div`
 
 const Text = styled.p`
 	height: ${props => props.height};
-	overflow-x: ${props => props.scroll};
+	overflow-y: ${props => props.scroll};
 	font-size: 14px;
 	color: rgba(11, 11, 11, 0.8);
-	overflow-x: ${props => (props.clamp === 3 ? "hidden" : "scroll")};
 	display: -webkit-box;
 	-webkit-line-clamp: ${props => props.clamp};
 	-webkit-box-orient: vertical;

@@ -2,9 +2,9 @@ import {
 	GET_MESSAGES,
 	GET_MESSAGES_SUCCESS,
 	GET_MESSAGES_FAIL,
+	HIDE_UNDO,
 	ON_PROGRESS,
-	REMOVE_MESSAGE,
-	UNDO_REMOVE_MESSAGE
+	REMOVE_MESSAGE
 } from "./constants";
 
 let INITIAL_STATE = {
@@ -33,8 +33,8 @@ const moduleReducer = (state = INITIAL_STATE, action) => {
 		case GET_MESSAGES_FAIL:
 			return state;
 
-		case UNDO_REMOVE_MESSAGE:
-			newState.removingMessage = false;
+		case HIDE_UNDO:
+			newState.undoable = false;
 
 			return newState;
 
@@ -45,7 +45,7 @@ const moduleReducer = (state = INITIAL_STATE, action) => {
 			];
 			newState.messages = messages;
 			newState.count -= 1;
-			newState.removingMessage = true;
+			newState.undoable = true;
 
 			return newState;
 
