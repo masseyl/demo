@@ -6,7 +6,6 @@ import { debounce } from "lodash";
 import shortid from "shortid";
 
 import Background from "../../components/background";
-import Carrier from "../../components/carrier";
 import ScrollView from "../../components/scrollView";
 
 import Card from "./components/card";
@@ -112,7 +111,6 @@ class Home extends Component {
 		return (
 			<Background>
 				<Undo onClick={this.undoDelete} showHide={this.props.removingMessage} />
-				<Carrier zIndex={3} />
 				<Header zIndex={2} chaos={this.chaos} />
 				<ScrollView zIndex={1} onScroll={this.onScroll}>
 					{content.map((card, index) => {

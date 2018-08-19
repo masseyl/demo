@@ -49,7 +49,7 @@ export default Header;
 const Container = styled.div`
 	z-index: ${props => props.zIndex};
 	position: fixed;
-	top: 20px;
+	top: 0;
 	right: 0;
 	display: flex;
 	flex-direction: row;
