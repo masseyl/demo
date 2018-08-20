@@ -10,8 +10,11 @@ class Card extends PureComponent {
 
 		if (props.chaos) {
 			const crazyTime = Math.ceil(Math.random() * 5000);
-			const crazyPlace = Math.ceil(Math.random() * 1000);
+			let crazyPlace = Math.ceil(Math.random() * window.innerWidth);
 			this.chaosTimer = setTimeout(() => {
+				if (this.props.index < 10) {
+					crazyPlace += 1000;
+				}
 				this.whatToDo(crazyPlace);
 			}, crazyTime);
 		}
