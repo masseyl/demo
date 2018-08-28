@@ -7,13 +7,11 @@ import RootContainer from "../RootContainer";
 const { store, persistor } = getReduxModule;
 
 const App = props => {
-	return (
-		<Provider store={store}>
-			<PersistGate loading={null} persistor={persistor}>
-				<RootContainer />
-			</PersistGate>
-		</Provider>
-	);
+  return (
+    <Provider store={store}>
+      <RootContainer />
+    </Provider>
+  );
 };
 
 export default App;
