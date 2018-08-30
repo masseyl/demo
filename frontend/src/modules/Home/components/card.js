@@ -24,9 +24,9 @@ class Card extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     //instead of using a virtualized list, taking advantage of react's
     //component lifecycle
-    if (nextProps.isScrolling) return true;
+    // if (nextProps.isScrolling) return true;
     if (
-      nextProps.isSwiping &&
+      (nextProps.isScrolling || nextProps.isSwiping) &&
       (nextProps.swipingIndex > this.props.index - 4 ||
         nextProps.swipingIndex < this.props.index + 4)
     ) {
@@ -221,11 +221,13 @@ const CardContainer = styled.div`
 
 const Container = styled.div`
   transform: scale3d(
-    ${props => (props.deletingMessage ? 2 : 1)},
+    ${props => (props.deletingMessage ? 0.1 : 1)},
     ${props => (props.deletingMessage ? 0.2 : 1)},
-    ${props => (props.deletingMessage ? -2 : 1)}
+    ${props => (props.deletingMessage ? -10 : 1)}
   );
-  transition: transform ${props => (props.deletingMessage ? 1 : 0.1)}s ease-in;
+  transition: transform ${props => (props.deletingMessage ? 0.6 : 0.1)}s,
+    opacity ${props => (props.deletingMessage ? 0.4 : 0.1)}s ease-in;
+  opacity: ${props => (props.deletingMessage ? 0.5 : 1)};
   width: 92%;
   margin-left: 4%;
   margin-bottom: 3px;

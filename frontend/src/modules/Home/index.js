@@ -23,7 +23,8 @@ class Home extends Component {
     this.state = {
       deleteMessageIndex: -1,
       confirmed: true,
-      messages: []
+      messages: [],
+      forceUpdate: 0
     };
   }
   static getDerivedStateFromProps(props, state) {
@@ -55,6 +56,14 @@ class Home extends Component {
     const scrollTop = evt.nativeEvent.target.scrollTop;
     const deltaScroll = scrollTop - this.lastTop;
     this.lastTop = scrollTop;
+    //
+    if (Math.floor((scrollTop / scrollHeight) * 100) > 20) {
+      if (this.props.messagesLoaded) {
+        this.throttleGetMessages();
+      }
+    }
+
+    //optimization for list rendering
     if (Math.abs(deltaScroll) > 3 && !this.isScrolling) {
       this.setState({ isScrolling: true });
       this.isScrolling = true;
@@ -62,11 +71,24 @@ class Home extends Component {
       this.setState({ isScrolling: false });
       this.isScrolling = false;
     }
-    if (Math.floor((scrollTop / scrollHeight) * 100) > 20) {
-      if (this.props.messagesLoaded) {
-        this.throttleGetMessages();
-      }
-    }
+  };
+
+  endSwiping = () => {
+    //give the ending animation time to complete
+    this.endSwipeTimer = setTimeout(() => {
+      this.setState({ swiping: false });
+      clearInterval(this.endSwipeTimer);
+    }, 1000);
+  };
+
+  removeMessage = index => {
+    this.throttleRemoveMessage(index);
+  };
+
+  startSwiping = index => {
+    //simulate a virtual list by informing cards which one is swiping
+    // the one's who aren't in view don't update
+    this.setState({ swiping: true, swipingIndex: index });
   };
 
   throttleGetMessages = throttle(() => {
@@ -74,41 +96,28 @@ class Home extends Component {
   }, 750);
 
   throttleRemoveMessage = throttle(index => {
+    //tell the cards which one of them is being removed
     this.setState({
       deleteMessageIndex: index
     });
-    this.props.removeMessage(index);
-  }, 2000);
 
-  removeMessage = index => {
-    this.throttleRemoveMessage(index);
-    this.deletingTimer = setTimeout(() => {
+    this.removeTimer = setTimeout(() => {
+      //after animations have completed update the view data
+      this.props.removeMessage(index);
       this.setState({
         deleteMessageIndex: -1
       });
-    }, 1000);
+    }, 500);
+  }, 2000);
+
+  undoDelete = () => {
+    this.props.undo();
   };
 
   updateWindowDimensions = () => {
     this.setState({ height: window.innerHeight, width: window.innerWidth });
   };
 
-  undoDelete = () => {
-    this.props.undo();
-    this.setState({
-      deleteMessageIndex: -1
-    });
-  };
-  startSwiping = index => {
-    console.log("start", index);
-    this.setState({ swiping: true, swipingIndex: index });
-  };
-  endSwiping = () => {
-    this.endSwipeTimer = setTimeout(() => {
-      this.setState({ swiping: false });
-      clearInterval(this.endSwipeTimer);
-    }, 1000);
-  };
   render() {
     const content = this.props.messages;
     if (!this.state.confirmed) return null;
@@ -116,23 +125,27 @@ class Home extends Component {
     return (
       <Background>
         <Header zIndex={2} chaos={this.chaos} />
-        <ScrollView zIndex={1} onScroll={this.onScroll}>
+        <ScrollView
+          onScroll={this.onScroll}
+          isScrolling={this.state.isScrolling}
+          removingMessage={this.props.removingMessage}
+          zIndex={1}
+        >
           {content.map((card, index) => {
             return (
               <div key={index}>
                 <Card
-                  isScrolling={this.state.isScrolling}
-                  isSwiping={this.state.swiping}
-                  swipingIndex={this.state.swipingIndex}
-                  width={this.state.width}
-                  startSwiping={this.startSwiping}
-                  endSwiping={this.endSwiping}
                   card={card}
                   deletedMessageIndex={this.state.deleteMessageIndex}
+                  endSwiping={this.endSwiping}
                   index={index}
+                  isScrolling={this.state.isScrolling}
+                  isSwiping={this.state.swiping}
                   key={index}
-                  removingMessage={this.props.removingMessage}
                   removeMessage={this.removeMessage}
+                  startSwiping={this.startSwiping}
+                  swipingIndex={this.state.swipingIndex}
+                  width={this.state.width}
                 />
               </div>
             );
@@ -145,10 +158,10 @@ class Home extends Component {
 
 function mapStateToProps(state) {
   return {
-    removingMessage: state.Home.removingMessage,
-    messagesLoaded: state.Home.messagesLoaded,
-    messages: state.Home.messages,
-    pageToken: state.Home.pageToken
+    removingMessage: state.Home.present.removingMessage,
+    messagesLoaded: state.Home.present.messagesLoaded,
+    messages: state.Home.present.messages,
+    pageToken: state.Home.present.pageToken
   };
 }
 

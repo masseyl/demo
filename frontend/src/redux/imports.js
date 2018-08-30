@@ -1,4 +1,4 @@
-// import undoable from "redux-undo";
+import undoable from "redux-undo";
 import { all, fork } from "redux-saga/effects";
 //import reducers
 import { default as HomeReducer } from "../modules/Home/reducers";
@@ -6,7 +6,9 @@ import { default as HomeReducer } from "../modules/Home/reducers";
 import { default as HomeSaga } from "../modules/Home/sagas";
 
 const allReducers = {
-  Home: HomeReducer
+  Home: undoable(HomeReducer, {
+    limit: 2
+  })
 };
 const sagaFunctions = [HomeSaga()];
 
