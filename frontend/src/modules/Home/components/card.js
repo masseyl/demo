@@ -7,6 +7,10 @@ import { throttle } from "lodash";
 class Card extends Component {
   constructor(props) {
     super(props);
+    this.velocityArray = [0];
+    this.lastX = 0;
+    this.lastY = 0;
+
     this.state = {
       scaleX: 1,
       scaleY: 1,
@@ -48,8 +52,6 @@ class Card extends Component {
   }
 
   componentDidMount() {
-    this.velocityArray = [0];
-    this.lastX = 0;
     this.toggleHeight();
     if (this.props.placeHolder) {
       this.placeholderTimer = setTimeout(() => {
@@ -70,18 +72,20 @@ class Card extends Component {
     clearInterval(this.placeholderTimer);
   };
 
-  onSwipeStart = () => {
+  onSwipeStart = event => {
     this.setState({ iAmSwiping: true });
   };
+
   onSwipeMove = (position, event) => {
     if (this.state.iAmSwiping) {
-      this.whatToDo(position.x);
+      this.whatToDo(position.x, position.y);
     }
   };
 
   onSwipeEnd = event => {
     this.endSwiping();
   };
+
   endSwiping = () => {
     this.setState({
       iAmSwiping: false,
@@ -94,7 +98,7 @@ class Card extends Component {
     }, 500);
   };
 
-  calculateVelocity = deltaX => {
+  calculateVelocity = (deltaX, deltaY) => {
     let velocity = 0;
     let velocityArray = [...this.velocityArray];
     velocityArray.push(deltaX);
@@ -132,21 +136,22 @@ class Card extends Component {
     });
   };
 
-  whatToDo = xx => {
+  whatToDo = (xx, yy) => {
     const deltaX = xx - this.lastX;
-    const velocity = this.calculateVelocity(deltaX);
+    const deltaY = yy - this.lastY;
+    const velocity = this.calculateVelocity(deltaX, deltaY);
     this.lastX = xx;
-
+    this.lastY = yy;
     if (
-      xx > this.props.width * 0.8 ||
-      (velocity > 1.6 && !this.state.deletingMessage)
+      xx > this.props.width * 0.7 ||
+      (velocity > 1 && !this.state.deletingMessage)
     ) {
       this.setState({ deletingMessage: true });
       this.throttleDeleteMessage();
       this.velocityArray = [0];
       this.lastX = 0;
       this.endSwiping();
-      this.setState({ scaleX: 0, scaleY: 0, x: 0 });
+      this.setState({ scaleX: 0, scaleY: 0, x: 1000 });
       this.expandoTimer = setTimeout(() => {
         this.setState({ scaleX: 1, scaleY: 1 });
       }, 750);
