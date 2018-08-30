@@ -115,14 +115,12 @@ class Home extends Component {
 
     return (
       <Background>
-        <Undo onClick={this.undoDelete} showHide={this.props.removingMessage} />
         <Header zIndex={2} chaos={this.chaos} />
         <ScrollView zIndex={1} onScroll={this.onScroll}>
           {content.map((card, index) => {
             return (
               <div key={index}>
                 <Card
-                  killme={this.state.deleteMessageIndex === index}
                   isScrolling={this.state.isScrolling}
                   isSwiping={this.state.swiping}
                   swipingIndex={this.state.swipingIndex}
@@ -147,10 +145,10 @@ class Home extends Component {
 
 function mapStateToProps(state) {
   return {
-    removingMessage: state.Home.present.removingMessage,
-    messagesLoaded: state.Home.present.messagesLoaded,
-    messages: state.Home.present.messages,
-    pageToken: state.Home.present.pageToken
+    removingMessage: state.Home.removingMessage,
+    messagesLoaded: state.Home.messagesLoaded,
+    messages: state.Home.messages,
+    pageToken: state.Home.pageToken
   };
 }
 

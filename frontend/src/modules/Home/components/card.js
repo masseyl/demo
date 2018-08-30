@@ -12,8 +12,6 @@ class Card extends Component {
     this.lastY = 0;
 
     this.state = {
-      scaleX: 1,
-      scaleY: 1,
       x: 0,
       textHeight: "45px",
       clamp: 3,
@@ -24,10 +22,9 @@ class Card extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
+    //instead of using a virtualized list, taking advantage of react's
+    //component lifecycle
     if (nextProps.isScrolling) return true;
-    if (nextProps.isSwiping && nextProps.swipingIndex === this.props.index) {
-      return true;
-    }
     if (
       nextProps.isSwiping &&
       (nextProps.swipingIndex > this.props.index - 4 ||
@@ -35,16 +32,10 @@ class Card extends Component {
     ) {
       return true;
     }
-    if (nextProps.deleteMessageIndex === -1) return true;
     if (
-      nextProps.deleteMessageIndex !== -1 &&
-      (nextProps.deleteMessageIndex === this.props.index ||
-        nextProps.deleteMessageIndex < this.props.index + 4 ||
-        nextProps.deleteMessageIndex > this.props.index - 4)
+      nextProps.deletedMessageIndex !== -1 &&
+      nextProps.deletedMessageIndex === this.props.index
     ) {
-      return true;
-    }
-    if (nextState.scaleX === 0) {
       return true;
     }
 
@@ -53,23 +44,10 @@ class Card extends Component {
 
   componentDidMount() {
     this.toggleHeight();
-    if (this.props.placeHolder) {
-      this.placeholderTimer = setTimeout(() => {
-        if (this.placeholderTimer) {
-          this.setState({
-            scaleX: 0,
-            scaleY: 0,
-            animationSpeed: 0.5
-          });
-        }
-      }, 1);
-    }
   }
 
   componentWillUnmount = () => {
-    clearInterval(this.chaosTimer);
     clearInterval(this.timeout);
-    clearInterval(this.placeholderTimer);
   };
 
   onSwipeStart = event => {
@@ -77,28 +55,23 @@ class Card extends Component {
   };
 
   onSwipeMove = (position, event) => {
+    event.stopPropagation();
     if (this.state.iAmSwiping) {
-      this.whatToDo(position.x, position.y);
+      this.determineSwipeResponse(position.x, position.y);
     }
   };
 
   onSwipeEnd = event => {
+    event.stopPropagation();
     this.endSwiping();
   };
 
-  endSwiping = () => {
-    this.setState({
-      iAmSwiping: false,
-      x: 0,
-      animationSpeed: 0.5
-    });
-    this.timeout = setTimeout(() => {
-      this.props.endSwiping();
-      this.setState({ animationSpeed: 0.05 });
-    }, 500);
-  };
+  calculateVelocity = (xx, yy) => {
+    const deltaX = xx - this.lastX;
+    const deltaY = yy - this.lastY;
+    this.lastX = xx;
+    this.lastY = yy;
 
-  calculateVelocity = (deltaX, deltaY) => {
     let velocity = 0;
     let velocityArray = [...this.velocityArray];
     velocityArray.push(deltaX);
@@ -115,6 +88,41 @@ class Card extends Component {
     }
     this.velocityArray = velocityArray;
     return velocity;
+  };
+
+  determineSwipeResponse = (xx, yy) => {
+    const velocity = this.calculateVelocity(xx, yy);
+    if (
+      xx > this.props.width * 0.7 ||
+      (velocity > 2 && !this.state.deletingMessage)
+    ) {
+      this.setState({ deletingMessage: true });
+      this.throttleDeleteMessage();
+      this.velocityArray = [0];
+      this.lastX = 0;
+      this.endSwiping();
+    } else {
+      this.setState({
+        x: xx > 0 ? xx : 0
+      });
+    }
+  };
+
+  endSwiping = () => {
+    this.setState({
+      iAmSwiping: false,
+      x: 0,
+      animationSpeed: 0.005
+    });
+    this.timeout = setTimeout(() => {
+      this.props.endSwiping();
+      this.setState({ animationSpeed: 0.05 });
+    }, 500);
+  };
+
+  start = event => {
+    event.stopPropagation();
+    this.props.startSwiping(this.props.index);
   };
 
   throttleDeleteMessage = throttle(() => {
@@ -136,47 +144,18 @@ class Card extends Component {
     });
   };
 
-  whatToDo = (xx, yy) => {
-    const deltaX = xx - this.lastX;
-    const deltaY = yy - this.lastY;
-    const velocity = this.calculateVelocity(deltaX, deltaY);
-    this.lastX = xx;
-    this.lastY = yy;
-    if (
-      xx > this.props.width * 0.7 ||
-      (velocity > 1 && !this.state.deletingMessage)
-    ) {
-      this.setState({ deletingMessage: true });
-      this.throttleDeleteMessage();
-      this.velocityArray = [0];
-      this.lastX = 0;
-      this.endSwiping();
-      this.setState({ scaleX: 0, scaleY: 0, x: 1000 });
-      this.expandoTimer = setTimeout(() => {
-        this.setState({ scaleX: 1, scaleY: 1 });
-      }, 750);
-    } else {
-      this.setState({
-        x: xx > 0 ? xx : 0
-      });
-    }
-  };
-  start = event => {
-    event.stopPropagation();
-    this.props.startSwiping(this.props.index);
-  };
-
   render() {
     const isPlaceHolder = this.props.deletedMessageIndex === this.props.index;
     const photo = isPlaceHolder ? "" : this.props.card.author.photoUrl;
     const author = isPlaceHolder ? "" : this.props.card.author.name;
     const content = isPlaceHolder ? "" : this.props.card.content;
+    const deletingMessage = this.props.deletedMessageIndex === this.props.index;
     const updated = isPlaceHolder
       ? ""
       : moment(this.props.card.updated).fromNow();
     return (
       <Container
-        killme={this.props.killme}
+        deletingMessage={deletingMessage}
         onMouseDown={this.start}
         onTouchStart={this.start}
         background={this.state.background}
@@ -198,7 +177,10 @@ class Card extends Component {
             animationSpeed={this.state.animationSpeed}
           >
             <TopRow>
-              <Image src={"http://message-list.appspot.com" + photo} />
+              <Image
+                src={"http://message-list.appspot.com" + photo}
+                deletingMessage={deletingMessage}
+              />
               <NameBox>
                 <Author>{author}</Author>
                 <ElapsedTime>{updated}</ElapsedTime>
@@ -223,6 +205,7 @@ class Card extends Component {
 export default Card;
 
 const Author = styled.div`
+  user-select: none;
   padding-top: 7px;
   font-weight: bold;
   font-size: 14px;
@@ -237,9 +220,12 @@ const CardContainer = styled.div`
 `;
 
 const Container = styled.div`
-  opacity: ${props => (props.killme ? 0 : 1)}
-  transform: scale3d(${props => props.scaleX}, ${props => props.scaleY}, 1);
-  transition: opacity transform 0.5s ease-out;
+  transform: scale3d(
+    ${props => (props.deletingMessage ? 2 : 1)},
+    ${props => (props.deletingMessage ? 0.2 : 1)},
+    ${props => (props.deletingMessage ? -2 : 1)}
+  );
+  transition: transform ${props => (props.deletingMessage ? 1 : 0.1)}s ease-in;
   width: 92%;
   margin-left: 4%;
   margin-bottom: 3px;
@@ -250,6 +236,7 @@ const Container = styled.div`
 `;
 
 const ElapsedTime = styled.p`
+  user-select: none;
   font-size: 12px;
   color: rgba(99, 99, 99, 0.6);
   border-width: 1px;
@@ -257,6 +244,7 @@ const ElapsedTime = styled.p`
 `;
 
 const Image = styled.img`
+  opacity: ${props => (props.deletingMessage ? 0 : 1)}
   width: 40px;
   height: 40px;
   border-radius: 30px;
@@ -269,6 +257,7 @@ const NameBox = styled.div`
 `;
 
 const Text = styled.p`
+  user-select: none;
   height: ${props => props.height};
   overflow-y: ${props => props.scroll};
   font-size: 14px;
@@ -286,9 +275,3 @@ const TopRow = styled.div`
   margin-left: 10px;
   height: 48px;
 `;
-const backgrounds = [
-  "./assets/surprised-face.jpg",
-  "./assets/scary apk.jpg",
-  "./assets/cat-humor-surprise-did-i-scare-you.jpg",
-  "./assets/30992649-zombie-pumpkin-halloween-greeting-card-with-copyspace-as-a-scary-surprise-creepy-jack-o-lantern-with.jpg"
-];
