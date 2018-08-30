@@ -17,7 +17,7 @@ const makeStore = () => {
 
   //TODO: Figure out how to add reducers dynamically
   const reducers = combineReducers(allReducers);
-  // const persistedReducer = persistReducer(persistConfig, reducers);
+  const persistedReducer = persistReducer(persistConfig, reducers);
 
   //Add middleware(s)
   const sagaMiddleware = createSagaMiddleware();
@@ -25,15 +25,13 @@ const makeStore = () => {
   enhancers.push(applyMiddleware(...middleware));
 
   //create and persist the data store
-  const store = createStore(reducers, compose(...enhancers));
-  // const store = createStore(persistedReducer, compose(...enhancers));
-  // let persistor = persistStore(store);
-  // persistor.purge();
+  const store = createStore(persistedReducer, compose(...enhancers));
+  let persistor = persistStore(store);
+  persistor.purge();
   sagaMiddleware.run(rootSaga);
 
   //attach navigation to state
-  return { store };
-  // return { store, persistor };
+  return { store, persistor };
 };
 
 const getReduxModule = makeStore();

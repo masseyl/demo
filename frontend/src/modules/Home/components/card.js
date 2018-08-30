@@ -1,9 +1,10 @@
-import React, { PureComponent } from "react";
+import React, { Component } from "react";
 import styled from "styled-components";
 import Swipe from "react-easy-swipe";
 import moment from "moment";
+import { throttle } from "lodash";
 
-class Card extends PureComponent {
+class Card extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -13,26 +14,53 @@ class Card extends PureComponent {
       textHeight: "45px",
       clamp: 3,
       scroll: "hidden",
-      isCollapsed: true
+      isCollapsed: true,
+      animationSpeed: 0.05
     };
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (nextProps.isScrolling) return true;
+    if (nextProps.isSwiping && nextProps.swipingIndex === this.props.index) {
+      return true;
+    }
+    if (
+      nextProps.isSwiping &&
+      (nextProps.swipingIndex > this.props.index - 4 ||
+        nextProps.swipingIndex < this.props.index + 4)
+    ) {
+      return true;
+    }
+    if (nextProps.deleteMessageIndex === -1) return true;
+    if (
+      nextProps.deleteMessageIndex !== -1 &&
+      (nextProps.deleteMessageIndex === this.props.index ||
+        nextProps.deleteMessageIndex < this.props.index + 4 ||
+        nextProps.deleteMessageIndex > this.props.index - 4)
+    ) {
+      return true;
+    }
+    if (nextState.scaleX === 0) {
+      return true;
+    }
+
+    return false;
   }
 
   componentDidMount() {
     this.velocityArray = [0];
     this.lastX = 0;
-    this.updateWindowDimensions();
     this.toggleHeight();
-    window.addEventListener("resize", this.updateWindowDimensions);
     if (this.props.placeHolder) {
-      this.placeholderTimer = setTimeout(
-        () =>
+      this.placeholderTimer = setTimeout(() => {
+        if (this.placeholderTimer) {
           this.setState({
             scaleX: 0,
             scaleY: 0,
-            returnToZero: true
-          }),
-        1
-      );
+            animationSpeed: 0.5
+          });
+        }
+      }, 1);
     }
   }
 
@@ -40,25 +68,30 @@ class Card extends PureComponent {
     clearInterval(this.chaosTimer);
     clearInterval(this.timeout);
     clearInterval(this.placeholderTimer);
-    window.removeEventListener("resize", this.updateWindowDimensions);
   };
 
-  onScroll = evt => {
-    evt.stopPropagation();
+  onSwipeStart = () => {
+    this.setState({ iAmSwiping: true });
   };
-
   onSwipeMove = (position, event) => {
-    this.whatToDo(position.x);
+    if (this.state.iAmSwiping) {
+      this.whatToDo(position.x);
+    }
   };
 
   onSwipeEnd = event => {
+    this.endSwiping();
+  };
+  endSwiping = () => {
     this.setState({
+      iAmSwiping: false,
       x: 0,
-      returnToZero: true
+      animationSpeed: 0.5
     });
     this.timeout = setTimeout(() => {
-      this.setState({ returnToZero: false });
-    }, 400);
+      this.props.endSwiping();
+      this.setState({ animationSpeed: 0.05 });
+    }, 500);
   };
 
   calculateVelocity = deltaX => {
@@ -80,6 +113,14 @@ class Card extends PureComponent {
     return velocity;
   };
 
+  throttleDeleteMessage = throttle(() => {
+    this.setState({ iAmSwiping: false });
+    this.props.removeMessage(this.props.index);
+    this.deletingTimer = setTimeout(() => {
+      this.setState({ deletingMessage: false });
+    }, 2000);
+  }, 2000);
+
   toggleHeight = () => {
     const isCollapsed = !this.state.isCollapsed;
     //flip state
@@ -91,28 +132,37 @@ class Card extends PureComponent {
     });
   };
 
-  updateWindowDimensions = () => {
-    this.setState({ width: window.innerWidth });
-  };
-
   whatToDo = xx => {
     const deltaX = xx - this.lastX;
     const velocity = this.calculateVelocity(deltaX);
     this.lastX = xx;
 
-    if (xx > this.state.width * 0.8 || velocity > 1.6) {
-      this.props.removeMessage(this.props.index);
+    if (
+      xx > this.props.width * 0.8 ||
+      (velocity > 1.6 && !this.state.deletingMessage)
+    ) {
+      this.setState({ deletingMessage: true });
+      this.throttleDeleteMessage();
       this.velocityArray = [0];
       this.lastX = 0;
+      this.endSwiping();
+      this.setState({ scaleX: 0, scaleY: 0, x: 0 });
+      this.expandoTimer = setTimeout(() => {
+        this.setState({ scaleX: 1, scaleY: 1 });
+      }, 750);
     } else {
       this.setState({
         x: xx > 0 ? xx : 0
       });
     }
   };
+  start = event => {
+    event.stopPropagation();
+    this.props.startSwiping(this.props.index);
+  };
 
   render() {
-    const isPlaceHolder = this.props.placeHolder;
+    const isPlaceHolder = this.props.deletedMessageIndex === this.props.index;
     const photo = isPlaceHolder ? "" : this.props.card.author.photoUrl;
     const author = isPlaceHolder ? "" : this.props.card.author.name;
     const content = isPlaceHolder ? "" : this.props.card.content;
@@ -120,18 +170,27 @@ class Card extends PureComponent {
       ? ""
       : moment(this.props.card.updated).fromNow();
     return (
-      <Container background={this.state.background} inset={this.state.x > 0}>
+      <Container
+        killme={this.props.killme}
+        onMouseDown={this.start}
+        onTouchStart={this.start}
+        background={this.state.background}
+        inset={this.state.x > 0}
+        scaleX={this.state.scaleX}
+        scaleY={this.state.scaleY}
+      >
         <Swipe
           allowMouseEvents
-          onSwipeMove={isPlaceHolder ? null : this.onSwipeMove}
-          onSwipeEnd={isPlaceHolder ? null : this.onSwipeEnd}
+          onSwipeStart={this.onSwipeStart}
+          onSwipeMove={this.onSwipeMove}
+          onSwipeEnd={this.onSwipeEnd}
         >
           <CardContainer
-            amPlaceholder={this.props.placeHolder}
-            x={this.state.x}
-            returnToZero={this.state.returnToZero}
             scaleX={this.state.scaleX}
             scaleY={this.state.scaleY}
+            amPlaceholder={this.props.placeHolder}
+            x={this.state.x}
+            animationSpeed={this.state.animationSpeed}
           >
             <TopRow>
               <Image src={"http://message-list.appspot.com" + photo} />
@@ -168,18 +227,14 @@ const Author = styled.div`
 const CardContainer = styled.div`
   padding: 7px;
   background-color: white;
-  transform: scale3d(
-      ${props => {
-        return props.scaleX;
-      }},
-      ${props => props.scaleY},
-      1
-    )
-    translate3d(${props => props.x}px, 0, 0);
-  transition: transform ${props => (props.returnToZero ? 0.2 : 0.05)}s ease-out;
+  transform: translate3d(${props => props.x}px, 0, 0);
+  transition: transform ${props => props.animationSpeed}s ease-out;
 `;
 
 const Container = styled.div`
+  opacity: ${props => (props.killme ? 0 : 1)}
+  transform: scale3d(${props => props.scaleX}, ${props => props.scaleY}, 1);
+  transition: opacity transform 0.5s ease-out;
   width: 92%;
   margin-left: 4%;
   margin-bottom: 3px;

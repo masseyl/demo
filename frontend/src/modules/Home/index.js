@@ -2,7 +2,7 @@ import React, { Component } from "react";
 
 import { ActionCreators } from "redux-undo";
 import { connect } from "react-redux";
-import { debounce } from "lodash";
+import { throttle } from "lodash";
 import shortid from "shortid";
 
 import Background from "../../components/background";
@@ -10,7 +10,7 @@ import ScrollView from "../../components/scrollView";
 
 import Card from "./components/card";
 import Header from "./components/header";
-// import Undo from "./components/undo";
+import Undo from "./components/undo";
 import Loading from "./components/loading";
 
 import { getMessages, removeMessage } from "./actions";
@@ -18,63 +18,79 @@ import { getMessages, removeMessage } from "./actions";
 class Home extends Component {
   constructor(props) {
     super(props);
+    this.lastTop = 0;
+    this.isScrolling = true;
     this.state = {
       deleteMessageIndex: -1,
-      confirmed: false,
+      confirmed: true,
       messages: []
     };
   }
-
-  componentDidMount() {
-    this.props.getMessages(200, this.props.pageToken);
-    if (!this.state.confirmed) {
-      const confirmationPrompt = prompt("Please enter THE CODE");
-      this.setState({ confirmed: confirmationPrompt === "fluffy" });
-    }
-  }
-
   static getDerivedStateFromProps(props, state) {
     if (props.messages.length !== state.messages.length) {
       return { messages: props.messages };
     }
     return null;
   }
+
+  componentDidMount() {
+    this.updateWindowDimensions();
+    window.addEventListener("resize", this.updateWindowDimensions);
+    this.props.getMessages(60, this.props.pageToken);
+    if (!this.state.confirmed) {
+      const confirmationPrompt = prompt("Please enter THE CODE");
+      this.setState({ confirmed: confirmationPrompt === "fluffy" });
+    }
+  }
+
   componentWillUnmount() {
+    window.removeEventListener("resize", this.updateWindowDimensions);
     clearInterval(this.deletingTimer);
     clearInterval(this.undoTimer);
   }
 
   onScroll = evt => {
+    clearInterval(this.scrollTimer);
     const scrollHeight = evt.nativeEvent.target.scrollHeight;
     const scrollTop = evt.nativeEvent.target.scrollTop;
-    if (scrollTop > scrollHeight * 0.2) {
+    const deltaScroll = scrollTop - this.lastTop;
+    this.lastTop = scrollTop;
+    if (Math.abs(deltaScroll) > 3 && !this.isScrolling) {
+      this.setState({ isScrolling: true });
+      this.isScrolling = true;
+    } else {
+      this.setState({ isScrolling: false });
+      this.isScrolling = false;
+    }
+    if (Math.floor((scrollTop / scrollHeight) * 100) > 20) {
       if (this.props.messagesLoaded) {
-        this.debounceGetMessages();
+        this.throttleGetMessages();
       }
     }
   };
 
-  debounceGetMessages = debounce(() => {
-    this.props.getMessages(20, this.props.pageToken);
-  }, 100);
+  throttleGetMessages = throttle(() => {
+    this.props.getMessages(50, this.props.pageToken);
+  }, 750);
 
-  debounceRemoveMessage = debounce(index => {
-    this.props.removeMessage(index);
-  }, 1000);
-
-  removeMessage = index => {
+  throttleRemoveMessage = throttle(index => {
     this.setState({
       deleteMessageIndex: index
     });
-    this.debounceRemoveMessage(index);
+    this.props.removeMessage(index);
+  }, 2000);
+
+  removeMessage = index => {
+    this.throttleRemoveMessage(index);
     this.deletingTimer = setTimeout(() => {
       this.setState({
         deleteMessageIndex: -1
       });
     }, 1000);
-    if (this.props.messages.length < 3) {
-      this.props.getMessages(50, this.props.pageToken);
-    }
+  };
+
+  updateWindowDimensions = () => {
+    this.setState({ height: window.innerHeight, width: window.innerWidth });
   };
 
   undoDelete = () => {
@@ -83,28 +99,40 @@ class Home extends Component {
       deleteMessageIndex: -1
     });
   };
-
+  startSwiping = index => {
+    console.log("start", index);
+    this.setState({ swiping: true, swipingIndex: index });
+  };
+  endSwiping = () => {
+    this.endSwipeTimer = setTimeout(() => {
+      this.setState({ swiping: false });
+      clearInterval(this.endSwipeTimer);
+    }, 1000);
+  };
   render() {
-    const content = this.state.messages;
+    const content = this.props.messages;
     if (!this.state.confirmed) return null;
 
     return (
       <Background>
+        <Undo onClick={this.undoDelete} showHide={this.props.removingMessage} />
         <Header zIndex={2} chaos={this.chaos} />
         <ScrollView zIndex={1} onScroll={this.onScroll}>
           {content.map((card, index) => {
-            let placeHolder = false;
-            if (index === this.state.deleteMessageIndex) {
-              placeHolder = true;
-            }
             return (
-              <div key={shortid.generate()}>
-                {placeHolder && <Card placeHolder />}
+              <div key={index}>
                 <Card
+                  killme={this.state.deleteMessageIndex === index}
+                  isScrolling={this.state.isScrolling}
+                  isSwiping={this.state.swiping}
+                  swipingIndex={this.state.swipingIndex}
+                  width={this.state.width}
+                  startSwiping={this.startSwiping}
+                  endSwiping={this.endSwiping}
                   card={card}
-                  chaos={this.state.chaos}
+                  deletedMessageIndex={this.state.deleteMessageIndex}
                   index={index}
-                  key={shortid.generate()}
+                  key={index}
                   removingMessage={this.props.removingMessage}
                   removeMessage={this.removeMessage}
                 />
@@ -119,10 +147,10 @@ class Home extends Component {
 
 function mapStateToProps(state) {
   return {
-    removingMessage: state.Home.removingMessage,
-    messagesLoaded: state.Home.messagesLoaded,
-    messages: state.Home.messages,
-    pageToken: state.Home.pageToken
+    removingMessage: state.Home.present.removingMessage,
+    messagesLoaded: state.Home.present.messagesLoaded,
+    messages: state.Home.present.messages,
+    pageToken: state.Home.present.pageToken
   };
 }
 
