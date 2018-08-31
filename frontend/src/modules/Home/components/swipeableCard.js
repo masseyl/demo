@@ -4,7 +4,7 @@ import Swipe from "react-easy-swipe";
 import moment from "moment";
 import { throttle } from "lodash";
 
-class Card extends Component {
+class SwipeableCard extends Component {
   constructor(props) {
     super(props);
     this.velocityArray = [0];
@@ -22,13 +22,9 @@ class Card extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    //instead of using a virtualized list, taking advantage of react's
-    //component lifecycle
-    // if (nextProps.isScrolling) return true;
     if (
-      (nextProps.isScrolling || nextProps.isSwiping) &&
-      (nextProps.swipingIndex > this.props.index - 4 ||
-        nextProps.swipingIndex < this.props.index + 4)
+      nextProps.swipingIndex > this.props.index - 4 &&
+      nextProps.swipingIndex < this.props.index + 4
     ) {
       return true;
     }
@@ -42,11 +38,8 @@ class Card extends Component {
     return false;
   }
 
-  componentDidMount() {
-    this.toggleHeight();
-  }
-
   componentWillUnmount = () => {
+    clearInterval(this.deletingTimer);
     clearInterval(this.timeout);
   };
 
@@ -93,7 +86,7 @@ class Card extends Component {
   determineSwipeResponse = (xx, yy) => {
     const velocity = this.calculateVelocity(xx, yy);
     if (
-      xx > this.props.width * 0.7 ||
+      xx > this.props.width * 0.3 ||
       (velocity > 2 && !this.state.deletingMessage)
     ) {
       this.setState({ deletingMessage: true });
@@ -133,15 +126,9 @@ class Card extends Component {
     }, 2000);
   }, 2000);
 
-  toggleHeight = () => {
-    const isCollapsed = !this.state.isCollapsed;
-    //flip state
-    this.setState({
-      textHeight: isCollapsed ? "120px" : "45px",
-      clamp: isCollapsed ? -1 : 3,
-      scroll: isCollapsed ? "scroll" : "hidden",
-      isCollapsed
-    });
+  toggleDetail = () => {
+    console.log("DETAIL");
+    //this.props.toggleDetail
   };
 
   render() {
@@ -170,6 +157,8 @@ class Card extends Component {
           onSwipeEnd={this.onSwipeEnd}
         >
           <CardContainer
+            onClick={this.props.showDetail}
+            deletingMessage={deletingMessage}
             scaleX={this.state.scaleX}
             scaleY={this.state.scaleY}
             amPlaceholder={this.props.placeHolder}
@@ -187,9 +176,7 @@ class Card extends Component {
               </NameBox>
             </TopRow>
             <Text
-              onClick={this.toggleHeight}
-              clamp={this.state.clamp}
-              height={this.state.textHeight}
+              onClick={this.toggleDetail}
               scroll={this.state.scroll}
               onScroll={this.onScroll}
             >
@@ -202,7 +189,7 @@ class Card extends Component {
   }
 }
 
-export default Card;
+export default SwipeableCard;
 
 const Author = styled.div`
   user-select: none;
@@ -215,19 +202,24 @@ const Author = styled.div`
 const CardContainer = styled.div`
   padding: 7px;
   background-color: white;
-  transform: translate3d(${props => props.x}px, 0, 0);
+  transform: translate3d(
+    ${props => (props.deletingMessage ? 1000 : props.x)}px,
+    0,
+    0
+  );
   transition: transform ${props => props.animationSpeed}s ease-out;
 `;
 
 const Container = styled.div`
+  height: 130px;
   transform: scale3d(
-    ${props => (props.deletingMessage ? 0.1 : 1)},
-    ${props => (props.deletingMessage ? 0.2 : 1)},
-    ${props => (props.deletingMessage ? -10 : 1)}
+    ${props => (props.deletingMessage ? -0.25 : 1)},
+    ${props => (props.deletingMessage ? -0.25 : 1)},
+    ${props => (props.deletingMessage ? -0.25 : 1)}
   );
+  opacity: ${props => (props.deletingMessage ? 0.0 : 1)};
   transition: transform ${props => (props.deletingMessage ? 0.6 : 0.1)}s,
-    opacity ${props => (props.deletingMessage ? 0.4 : 0.1)}s ease-in;
-  opacity: ${props => (props.deletingMessage ? 0.5 : 1)};
+    opacity ${props => (props.deletingMessage ? 0.4 : 0.2)}s ease-in;
   width: 92%;
   margin-left: 4%;
   margin-bottom: 3px;
@@ -260,12 +252,12 @@ const NameBox = styled.div`
 
 const Text = styled.p`
   user-select: none;
-  height: ${props => props.height};
+  height: 45px;
   overflow-y: ${props => props.scroll};
   font-size: 14px;
   color: rgba(11, 11, 11, 0.8);
   display: -webkit-box;
-  -webkit-line-clamp: ${props => props.clamp};
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   transition: height 0.5s ease-out;
 `;

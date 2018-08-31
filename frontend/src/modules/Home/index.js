@@ -1,14 +1,16 @@
 import React, { Component } from "react";
+import styled from "styled-components";
 
 import { ActionCreators } from "redux-undo";
 import { connect } from "react-redux";
 import { throttle } from "lodash";
 import shortid from "shortid";
-
+import VirtualList from "react-tiny-virtual-list";
 import Background from "../../components/background";
 import ScrollView from "../../components/scrollView";
 
-import Card from "./components/card";
+import SwipeableCard from "./components/swipeableCard";
+import DetailCard from "./components/detailCard";
 import Header from "./components/header";
 import Undo from "./components/undo";
 import Loading from "./components/loading";
@@ -24,7 +26,8 @@ class Home extends Component {
       deleteMessageIndex: -1,
       confirmed: true,
       messages: [],
-      forceUpdate: 0
+      forceUpdate: 0,
+      hideDetail: true
     };
   }
   static getDerivedStateFromProps(props, state) {
@@ -37,7 +40,7 @@ class Home extends Component {
   componentDidMount() {
     this.updateWindowDimensions();
     window.addEventListener("resize", this.updateWindowDimensions);
-    this.props.getMessages(60, this.props.pageToken);
+    this.props.getMessages(100, this.props.pageToken);
     if (!this.state.confirmed) {
       const confirmationPrompt = prompt("Please enter THE CODE");
       this.setState({ confirmed: confirmationPrompt === "fluffy" });
@@ -51,25 +54,15 @@ class Home extends Component {
   }
 
   onScroll = evt => {
-    clearInterval(this.scrollTimer);
-    const scrollHeight = evt.nativeEvent.target.scrollHeight;
-    const scrollTop = evt.nativeEvent.target.scrollTop;
-    const deltaScroll = scrollTop - this.lastTop;
-    this.lastTop = scrollTop;
-    //
-    if (Math.floor((scrollTop / scrollHeight) * 100) > 20) {
+    const NOW = evt / 50 - Math.floor(evt / 50);
+    if (NOW === 0) {
       if (this.props.messagesLoaded) {
         this.throttleGetMessages();
+        this.setState({
+          forcer: Math.random()
+        });
+        // this.forceUpdate();
       }
-    }
-
-    //optimization for list rendering
-    if (Math.abs(deltaScroll) > 3 && !this.isScrolling) {
-      this.setState({ isScrolling: true });
-      this.isScrolling = true;
-    } else {
-      this.setState({ isScrolling: false });
-      this.isScrolling = false;
     }
   };
 
@@ -84,7 +77,11 @@ class Home extends Component {
   removeMessage = index => {
     this.throttleRemoveMessage(index);
   };
-
+  showDetail = showHide => {
+    this.setState({
+      showDetail: showHide
+    });
+  };
   startSwiping = index => {
     //simulate a virtual list by informing cards which one is swiping
     // the one's who aren't in view don't update
@@ -92,7 +89,8 @@ class Home extends Component {
   };
 
   throttleGetMessages = throttle(() => {
-    this.props.getMessages(50, this.props.pageToken);
+    console.log("debug");
+    this.props.getMessages(100, this.props.pageToken);
   }, 750);
 
   throttleRemoveMessage = throttle(index => {
@@ -124,18 +122,21 @@ class Home extends Component {
 
     return (
       <Background>
+        <Undo onClick={this.undoDelete} showHide={this.props.removingMessage} />
         <Header zIndex={2} chaos={this.chaos} />
-        <ScrollView
-          onScroll={this.onScroll}
-          isScrolling={this.state.isScrolling}
-          removingMessage={this.props.removingMessage}
-          zIndex={1}
-        >
-          {content.map((card, index) => {
-            return (
-              <div key={index}>
-                <Card
-                  card={card}
+        <List>
+          <VirtualList
+            overscanCount={50}
+            onScroll={this.onScroll}
+            width="100%"
+            height={window.innerHeight - 52}
+            itemCount={content.length}
+            itemSize={132} // Also supports variable heights (array or function getter)
+            renderItem={({ index, style }) => (
+              <div key={index} style={style}>
+                <SwipeableCard
+                  showDetail={() => this.showDetail(true)}
+                  card={content[index]}
                   deletedMessageIndex={this.state.deleteMessageIndex}
                   endSwiping={this.endSwiping}
                   index={index}
@@ -148,9 +149,19 @@ class Home extends Component {
                   width={this.state.width}
                 />
               </div>
-            );
-          })}
-        </ScrollView>
+            )}
+          />
+        </List>
+        <Detail show={this.state.showDetail}>
+          {content.length > 0 &&
+            this.state.swipingIndex &&
+            content[this.state.swipingIndex].content && (
+              <DetailCard
+                card={content[this.state.swipingIndex || 0]}
+                toggle={this.showDetail}
+              />
+            )}
+        </Detail>
       </Background>
     );
   }
@@ -177,3 +188,17 @@ export default connect(
   mapStateToProps,
   mapPropsToDispatch
 )(Home);
+
+const Detail = styled.div`
+  position: absolute;
+  display: ${props => (props.show ? "flex" : "none")};
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin-left: -27px;
+  background-color: rgba(200, 200, 200, 0.8);
+`;
+
+const List = styled.div`
+  margin-top: 52px;
+`;
