@@ -24,7 +24,7 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   position: absolute;
-  bottom: 100px;
+  bottom: 50px;
   background-color: rgba(255, 255, 255, 0.8);
 `;
 

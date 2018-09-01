@@ -128,7 +128,6 @@ class Home extends Component {
           <VirtualList
             overscanCount={50}
             onScroll={this.onScroll}
-            width="100%"
             height={window.innerHeight - 52}
             itemCount={content.length}
             itemSize={132} // Also supports variable heights (array or function getter)
@@ -152,15 +151,12 @@ class Home extends Component {
             )}
           />
         </List>
+        <Loading showHide={!this.props.messagesLoaded} />
         <Detail show={this.state.showDetail}>
-          {content.length > 0 &&
-            this.state.swipingIndex &&
-            content[this.state.swipingIndex].content && (
-              <DetailCard
-                card={content[this.state.swipingIndex || 0]}
-                toggle={this.showDetail}
-              />
-            )}
+          <DetailCard
+            card={content[this.state.swipingIndex || 0]}
+            toggle={this.showDetail}
+          />
         </Detail>
       </Background>
     );
@@ -195,10 +191,12 @@ const Detail = styled.div`
   align-items: center;
   justify-content: center;
   height: 100vh;
-  margin-left: -27px;
+  width: 100vw;
   background-color: rgba(200, 200, 200, 0.8);
 `;
 
 const List = styled.div`
   margin-top: 52px;
+  width: 92%;
+  padding: 14px;
 `;

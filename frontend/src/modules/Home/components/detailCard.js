@@ -40,7 +40,7 @@ const Author = styled.div`
 `;
 
 const CardContainer = styled.div`
-  padding: 7px;
+  padding: 14px;
   background-color: white;
   border-radius: 12px;
   box-shadow: 0 1px 4px white;
@@ -50,9 +50,6 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  position: "absolute";
-  bottom: -100;
   transform: scale3d(
     ${props => (props.hide ? -0.25 : 1)},
     ${props => (props.hide ? -0.25 : 1)},
@@ -62,7 +59,6 @@ const Container = styled.div`
   transition: transform ${props => (props.hide ? 0.6 : 0.1)}s,
     opacity ${props => (props.hide ? 0.4 : 0.2)}s ease-in;
   width: 92%;
-  margin-left: 4%;
   margin-bottom: 3px;
 `;
 
