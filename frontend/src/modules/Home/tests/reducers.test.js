@@ -11,10 +11,21 @@ import moment from "moment";
 const INITIAL_STATE = {
   messages: []
 };
+let newState;
+describe("check HIDE_UNDO", () => {
+  it("returns a proper value for REMOVE_MESSAGE", () => {
+    //set up new state
+    newState = moduleReducer(INITIAL_STATE, { type: HIDE_UNDO });
+    //bad date
+    expect(newState).toEqual({
+      messages: [],
+      undoable: false
+    });
+  });
+});
 
 describe("check REMOVE_MESSAGE", () => {
   it("returns a proper value for REMOVE_MESSAGE", () => {
-    let newState;
     const updated1 = moment();
     //quick add of messages
     let action1 = {
@@ -44,7 +55,8 @@ describe("check REMOVE_MESSAGE", () => {
         { content: "man!", updated: updated1 }
       ],
       pageToken: "fluffy",
-      messagesLoaded: true
+      messagesLoaded: true,
+      undoable: true
     });
   });
 });
@@ -73,7 +85,7 @@ describe("check GET_MESSAGES_SUCCESS", () => {
   it("returns a proper state for GET_MESSAGES_SUCCESS", () => {
     const updated1 = moment();
     const updated2 = moment().add(1, "hour");
-    let newState;
+
     let action1 = {
       type: GET_MESSAGES_SUCCESS,
       response: {
