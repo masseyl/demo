@@ -1,32 +1,32 @@
 {
-	"name": "nopain1",
-	"version": "0.3.0",
-	"description": "Demo server for mobile eeg apps",
-	"engines": {
-		"node": "9.11.1"
-	},
-	"main": "index.js",
-	"scripts": {
-		"start": "node index.js",
-		"test": "node test.js"
-	},
-	"dependencies": {
-		"assert": "1.4.1",
-		"body-parser": "1.18.3",
-		"co": "4.6.0",
-		"cors": "2.8.4",
-		"ejs": "^2.5.6",
-		"express": "^4.15.2",
-		"heroku-ssl-redirect": "^0.0.4",
-		"node-fetch": "^2.2.0"
-	},
-	"devDependencies": {
-		"request": "^2.81.0",
-		"tape": "^4.7.0"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/Pillrs-Org/google-messages"
-	},
-	"license": "NONE"
+  "name": "nopain1",
+  "version": "0.3.0",
+  "description": "Demo server for mobile eeg apps",
+  "engines": {
+    "node": "10.9.0"
+  },
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "assert": "1.4.1",
+    "body-parser": "1.18.3",
+    "co": "4.6.0",
+    "cors": "2.8.4",
+    "ejs": "^2.5.6",
+    "express": "^4.15.2",
+    "heroku-ssl-redirect": "^0.0.4",
+    "node-fetch": "^2.2.0"
+  },
+  "devDependencies": {
+    "request": "^2.81.0",
+    "tape": "^4.7.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Pillrs-Org/google-messages"
+  },
+  "license": "NONE"
 }

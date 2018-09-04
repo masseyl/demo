@@ -3,39 +3,25 @@ import styled from "styled-components";
 import Swipe from "react-easy-swipe";
 import moment from "moment";
 import { throttle } from "lodash";
+import { endpoints } from "../../../config/defaults";
+import { fontColors } from "../../../config/defaults";
 
 class SwipeableCard extends Component {
   constructor(props) {
     super(props);
     this.velocityArray = [0];
     this.lastX = 0;
-    this.lastY = 0;
-
+    this.endSwipeTimeout = 500;
+    this.fastAnimationTime = 0.005;
+    this.lineCount = 3;
+    this.fontSize = 14;
+    this.textHeight = this.lineCount * this.fontSize;
     this.state = {
       x: 0,
-      textHeight: "45px",
-      clamp: 3,
       scroll: "hidden",
       isCollapsed: true,
       animationSpeed: 0.05
     };
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    if (
-      nextProps.swipingIndex > this.props.index - 4 &&
-      nextProps.swipingIndex < this.props.index + 4
-    ) {
-      return true;
-    }
-    if (
-      nextProps.deletedMessageIndex !== -1 &&
-      nextProps.deletedMessageIndex === this.props.index
-    ) {
-      return true;
-    }
-
-    return false;
   }
 
   componentWillUnmount = () => {
@@ -59,11 +45,9 @@ class SwipeableCard extends Component {
     this.endSwiping();
   };
 
-  calculateVelocity = (xx, yy) => {
+  calculateVelocity = xx => {
     const deltaX = xx - this.lastX;
-    const deltaY = yy - this.lastY;
     this.lastX = xx;
-    this.lastY = yy;
 
     let velocity = 0;
     let velocityArray = [...this.velocityArray];
@@ -83,8 +67,8 @@ class SwipeableCard extends Component {
     return velocity;
   };
 
-  determineSwipeResponse = (xx, yy) => {
-    const velocity = this.calculateVelocity(xx, yy);
+  determineSwipeResponse = xx => {
+    const velocity = this.calculateVelocity(xx);
     if (
       xx > this.props.width * 0.3 ||
       (velocity > 2 && !this.state.deletingMessage)
@@ -109,8 +93,8 @@ class SwipeableCard extends Component {
     });
     this.timeout = setTimeout(() => {
       this.props.endSwiping();
-      this.setState({ animationSpeed: 0.05 });
-    }, 500);
+      this.setState({ animationSpeed: this.fastAnimationTime });
+    }, this.endSwipeTimeout);
   };
 
   start = event => {
@@ -126,26 +110,20 @@ class SwipeableCard extends Component {
     }, 2000);
   }, 2000);
 
-  toggleDetail = () => {
-    console.log("DETAIL");
-    //this.props.toggleDetail
-  };
-
   render() {
-    const isPlaceHolder = this.props.deletedMessageIndex === this.props.index;
-    const photo = isPlaceHolder ? "" : this.props.card.author.photoUrl;
-    const author = isPlaceHolder ? "" : this.props.card.author.name;
-    const content = isPlaceHolder ? "" : this.props.card.content;
+    //deletingMessage is the variable that kicks off animations
     const deletingMessage = this.props.deletedMessageIndex === this.props.index;
-    const updated = isPlaceHolder
-      ? ""
-      : moment(this.props.card.updated).fromNow();
+    const photo = this.props.card.author.photoUrl;
+    const author = this.props.card.author.name;
+    const content = this.props.card.content;
+    const updated = moment(this.props.card.updated).fromNow();
     return (
       <Container
-        deletingMessage={deletingMessage}
         onMouseDown={this.start}
         onTouchStart={this.start}
         background={this.state.background}
+        deletingMessage={deletingMessage}
+        height={this.props.height}
         inset={this.state.x > 0}
         scaleX={this.state.scaleX}
         scaleY={this.state.scaleY}
@@ -159,15 +137,15 @@ class SwipeableCard extends Component {
           <CardContainer
             onClick={this.props.showDetail}
             deletingMessage={deletingMessage}
+            height={this.props.height}
             scaleX={this.state.scaleX}
             scaleY={this.state.scaleY}
-            amPlaceholder={this.props.placeHolder}
             x={this.state.x}
             animationSpeed={this.state.animationSpeed}
           >
             <TopRow>
               <Image
-                src={"http://message-list.appspot.com" + photo}
+                src={`${endpoints.imagesBase}${photo}`}
                 deletingMessage={deletingMessage}
               />
               <NameBox>
@@ -192,18 +170,19 @@ class SwipeableCard extends Component {
 export default SwipeableCard;
 
 const Author = styled.div`
-  user-select: none;
-  padding-top: 7px;
-  font-weight: bold;
+  color: ${props => props.color};
   font-size: 14px;
-  color: rgba(22, 22, 22, 0.7);
+  font-weight: bold;
+  padding-top: 7px;
+  user-select: none;
 `;
 
 const CardContainer = styled.div`
-  padding: 7px;
   background-color: white;
+  max-height: ${props => (props.height ? props.height : 134)}px;
+  padding: 7px 0 7px 7px;
   transform: translate3d(
-    ${props => (props.deletingMessage ? 1000 : props.x)}px,
+    ${props => (props.deletingMessage ? window.innerWidth * 4 : props.x)}px,
     0,
     0
   );
@@ -211,39 +190,40 @@ const CardContainer = styled.div`
 `;
 
 const Container = styled.div`
-  height: 130px;
+  background-color: ${props => (props.inset ? "red" : "transparent")};
+  box-shadow: ${props => (props.inset ? "4px 4px 8px" : "0 1px 4px")}
+    ${props => (!props.inset ? "#888888" : "white")}
+    ${props => (props.inset ? "inset" : null)};
+
+  height: ${props => (props.height ? props.height : 134)}px;
+  margin-left: 4%;
+  margin-bottom: 3px;
+  opacity: ${props => (props.deletingMessage ? 0.0 : 1)};
   transform: scale3d(
     ${props => (props.deletingMessage ? -0.25 : 1)},
     ${props => (props.deletingMessage ? -0.25 : 1)},
     ${props => (props.deletingMessage ? -0.25 : 1)}
   );
-  opacity: ${props => (props.deletingMessage ? 0.0 : 1)};
   transition: transform ${props => (props.deletingMessage ? 0.6 : 0.1)}s,
-    opacity ${props => (props.deletingMessage ? 0.4 : 0.2)}s ease-in;
-  width: 92%;
-  margin-left: 4%;
-  margin-bottom: 3px;
-  background-color: red;
-  box-shadow: ${props => (props.inset ? "4px 4px 8px" : "0 1px 4px")}
-    ${props => (!props.inset ? "#888888" : "white")}
-    ${props => (props.inset ? "inset" : null)};
+    opacity ${props => (props.deletingMessage ? 0.4 : 0.2)}s ease-in,
+    background-color 0.2s ease-in;
 `;
 
 const ElapsedTime = styled.p`
-  user-select: none;
-  font-size: 12px;
-  color: rgba(99, 99, 99, 0.6);
   border-width: 1px;
+  color: rgba(99, 99, 99, 0.6);
+  font-size: 12px;
   margin-top: 1px;
+  user-select: none;
 `;
 
 const Image = styled.img`
-  opacity: ${props => (props.deletingMessage ? 0 : 1)}
-  width: 40px;
-  height: 40px;
   border-radius: 30px;
   border-width: 1px;
+  height: 40px;
   margin-right: 10px;
+  opacity: ${props => (props.deletingMessage ? 0 : 1)}
+  width: 40px;
 `;
 
 const NameBox = styled.div`
@@ -251,21 +231,22 @@ const NameBox = styled.div`
 `;
 
 const Text = styled.p`
-  user-select: none;
-  height: 45px;
-  overflow-y: ${props => props.scroll};
-  font-size: 14px;
   color: rgba(11, 11, 11, 0.8);
+  overflow-y: hidden;
+  padding: 7px;
+  font-size: 14px;
+  height: 42px;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
-  transition: height 0.5s ease-out;
+  overflow-y: ${props => props.scroll};
+  user-select: none;
 `;
 
 const TopRow = styled.div`
+  align-items: center;
   display: flex;
   flex-direction: row;
-  align-items: center;
-  margin-left: 10px;
   height: 48px;
+  margin-left: 10px;
 `;

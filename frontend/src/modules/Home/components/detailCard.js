@@ -1,8 +1,8 @@
-import React, { Component } from "react";
+import React from "react";
 import styled from "styled-components";
-import Swipe from "react-easy-swipe";
 import moment from "moment";
-import { throttle } from "lodash";
+import { fontColors } from "../../../config/defaults";
+import { endpoints } from "../../../config/defaults";
 
 const DetailCard = props => {
   const toggle = () => {
@@ -17,13 +17,13 @@ const DetailCard = props => {
     <Container hide={props.hide} onClick={toggle}>
       <CardContainer>
         <TopRow>
-          <Image src={"http://message-list.appspot.com" + photo} />
+          <Image src={`${endpoints.imagesBase}${photo}`} />
           <NameBox>
-            <Author>{author}</Author>
-            <ElapsedTime>{updated}</ElapsedTime>
+            <Author color={fontColors.dark}>{author}</Author>
+            <ElapsedTime color={fontColors.light}>{updated}</ElapsedTime>
           </NameBox>
         </TopRow>
-        <Text>{content}</Text>
+        <Text color={fontColors.medium}>{content}</Text>
       </CardContainer>
     </Container>
   );
@@ -36,7 +36,7 @@ const Author = styled.div`
   padding-top: 7px;
   font-weight: bold;
   font-size: 18px;
-  color: rgba(22, 22, 22, 0.7);
+  color: ${props => props.color};
 `;
 
 const CardContainer = styled.div`
@@ -58,14 +58,15 @@ const Container = styled.div`
   opacity: ${props => (props.hide ? 0.0 : 1)};
   transition: transform ${props => (props.hide ? 0.6 : 0.1)}s,
     opacity ${props => (props.hide ? 0.4 : 0.2)}s ease-in;
-  width: 92%;
+  width: 92vw;
+  max-height: 96vh;
   margin-bottom: 3px;
 `;
 
 const ElapsedTime = styled.p`
   user-select: none;
   font-size: 14px;
-  color: rgba(99, 99, 99, 0.6);
+  color: ${props => props.color};
   border-width: 1px;
   margin-top: 1px;
 `;
@@ -84,11 +85,11 @@ const NameBox = styled.div`
 `;
 
 const Text = styled.p`
-  user-select: none;
-  overflow-y: "scroll";
+  max-height: 30vh;
+  overflow-y: scroll;
   font-size: 18px;
-  color: rgba(11, 11, 11, 0.8);
-  display: -webkit-box;
+  color: ${props => props.color};
+  user-select: none;
 `;
 
 const TopRow = styled.div`

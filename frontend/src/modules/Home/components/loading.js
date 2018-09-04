@@ -1,4 +1,4 @@
-import React, { PureComponent } from "react";
+import React from "react";
 import styled from "styled-components";
 
 const Loading = props => {
@@ -24,7 +24,7 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   position: absolute;
-  bottom: 50px;
+  bottom: 5vh;
   background-color: rgba(255, 255, 255, 0.8);
 `;
 

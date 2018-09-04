@@ -1,46 +1,53 @@
 import React, { Component } from "react";
-import styled from "styled-components";
 
 import { ActionCreators } from "redux-undo";
 import { connect } from "react-redux";
 import { throttle } from "lodash";
-import shortid from "shortid";
+
+//visual components
 import VirtualList from "react-tiny-virtual-list";
 import Background from "../../components/background";
-import ScrollView from "../../components/scrollView";
-
-import SwipeableCard from "./components/swipeableCard";
 import DetailCard from "./components/detailCard";
+import DetailContainer from "./components/detailContainer";
 import Header from "./components/header";
-import Undo from "./components/undo";
+import ListContainer from "./components/listContainer";
 import Loading from "./components/loading";
+import SwipeableCard from "./components/swipeableCard";
+import Undo from "./components/undo";
 
+//actions
 import { getMessages, removeMessage } from "./actions";
 
 class Home extends Component {
   constructor(props) {
     super(props);
-    this.lastTop = 0;
-    this.isScrolling = true;
+
+    this.headerHeight = 52;
+
+    //loading management
+    this.initialLoadSize = 50;
+    this.lastScroll = 1; //used to determine when to load the next round of messages
+    this.messageThrottleMs = 10; //throttling for getting messages
+    this.reloadTrigger = 100; //scroll amount before trying to load more messages ()
+    this.subsequentLoadSize = 100;
+
+    //undeo management
+    this.endRemoveResetDelayMs = 500; //how long to wait to remove Undo
+    this.removeThrottleMs = 2000;
+    this.endSwipeDelayMs = 1000; // how long to wait before swipe gesture is considered done
+
     this.state = {
       deleteMessageIndex: -1,
       confirmed: true,
       messages: [],
-      forceUpdate: 0,
-      hideDetail: true
+      cardHeight: 136
     };
-  }
-  static getDerivedStateFromProps(props, state) {
-    if (props.messages.length !== state.messages.length) {
-      return { messages: props.messages };
-    }
-    return null;
   }
 
   componentDidMount() {
     this.updateWindowDimensions();
     window.addEventListener("resize", this.updateWindowDimensions);
-    this.props.getMessages(100, this.props.pageToken);
+    this.props.getMessages(this.initialLoadSize, this.props.pageToken);
     if (!this.state.confirmed) {
       const confirmationPrompt = prompt("Please enter THE CODE");
       this.setState({ confirmed: confirmationPrompt === "fluffy" });
@@ -49,20 +56,18 @@ class Home extends Component {
 
   componentWillUnmount() {
     window.removeEventListener("resize", this.updateWindowDimensions);
-    clearInterval(this.deletingTimer);
-    clearInterval(this.undoTimer);
   }
 
   onScroll = evt => {
-    const NOW = evt / 50 - Math.floor(evt / 50);
-    if (NOW === 0) {
-      if (this.props.messagesLoaded) {
-        this.throttleGetMessages();
-        this.setState({
-          forcer: Math.random()
-        });
-        // this.forceUpdate();
-      }
+    const reloadThreshold =
+      evt / this.reloadTrigger - Math.floor(evt / this.reloadTrigger);
+    if (reloadThreshold === 0 && evt > this.lastScroll) {
+      this.lastScroll = Math.max(evt, this.lastScroll);
+      this.throttleGetMessages();
+      this.setState({
+        //force virtualized list to update with new content reference
+        forcer: Math.random()
+      });
     }
   };
 
@@ -71,42 +76,42 @@ class Home extends Component {
     this.endSwipeTimer = setTimeout(() => {
       this.setState({ swiping: false });
       clearInterval(this.endSwipeTimer);
-    }, 1000);
+    }, this.endSwipeDelayMs);
   };
 
   removeMessage = index => {
     this.throttleRemoveMessage(index);
   };
+
   showDetail = showHide => {
     this.setState({
       showDetail: showHide
     });
   };
+
   startSwiping = index => {
-    //simulate a virtual list by informing cards which one is swiping
-    // the one's who aren't in view don't update
     this.setState({ swiping: true, swipingIndex: index });
   };
 
   throttleGetMessages = throttle(() => {
-    console.log("debug");
-    this.props.getMessages(100, this.props.pageToken);
-  }, 750);
+    this.props.getMessages(this.subsequentLoadSize, this.props.pageToken);
+  }, this.messageThrottleMs);
 
   throttleRemoveMessage = throttle(index => {
-    //tell the cards which one of them is being removed
+    //setting state to the current card starts the animations
     this.setState({
       deleteMessageIndex: index
     });
-
+    //and update the view data *AFTER* animations have completed
+    //otherwise it looks crappy
     this.removeTimer = setTimeout(() => {
-      //after animations have completed update the view data
       this.props.removeMessage(index);
       this.setState({
         deleteMessageIndex: -1
       });
-    }, 500);
-  }, 2000);
+    }, this.endRemoveResetDelayMs);
+    //yeh it looks weird to have a timeout inside a throttle, but it's efficient
+  }, this.removeThrottleMs);
 
   undoDelete = () => {
     this.props.undo();
@@ -118,31 +123,33 @@ class Home extends Component {
 
   render() {
     const content = this.props.messages;
+    let listHeight = this.state.height ? this.state.height : window.innerHeight;
+    listHeight -= this.headerHeight;
     if (!this.state.confirmed) return null;
 
     return (
       <Background>
         <Undo onClick={this.undoDelete} showHide={this.props.removingMessage} />
-        <Header zIndex={2} chaos={this.chaos} />
-        <List>
+        <Header zIndex={2} />
+        <ListContainer>
           <VirtualList
-            overscanCount={50}
+            overscanCount={this.overscanCount}
             onScroll={this.onScroll}
-            height={window.innerHeight - 52}
+            height={listHeight}
             itemCount={content.length}
-            itemSize={132} // Also supports variable heights (array or function getter)
+            itemSize={this.state.cardHeight}
             renderItem={({ index, style }) => (
               <div key={index} style={style}>
                 <SwipeableCard
-                  showDetail={() => this.showDetail(true)}
                   card={content[index]}
                   deletedMessageIndex={this.state.deleteMessageIndex}
                   endSwiping={this.endSwiping}
+                  height={this.state.cardHeight - 4}
                   index={index}
-                  isScrolling={this.state.isScrolling}
                   isSwiping={this.state.swiping}
                   key={index}
                   removeMessage={this.removeMessage}
+                  showDetail={() => this.showDetail(true)}
                   startSwiping={this.startSwiping}
                   swipingIndex={this.state.swipingIndex}
                   width={this.state.width}
@@ -150,14 +157,14 @@ class Home extends Component {
               </div>
             )}
           />
-        </List>
+        </ListContainer>
         <Loading showHide={!this.props.messagesLoaded} />
-        <Detail show={this.state.showDetail}>
+        <DetailContainer show={this.state.showDetail}>
           <DetailCard
             card={content[this.state.swipingIndex || 0]}
             toggle={this.showDetail}
           />
-        </Detail>
+        </DetailContainer>
       </Background>
     );
   }
@@ -184,19 +191,3 @@ export default connect(
   mapStateToProps,
   mapPropsToDispatch
 )(Home);
-
-const Detail = styled.div`
-  position: absolute;
-  display: ${props => (props.show ? "flex" : "none")};
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  width: 100vw;
-  background-color: rgba(200, 200, 200, 0.8);
-`;
-
-const List = styled.div`
-  margin-top: 52px;
-  width: 92%;
-  padding: 14px;
-`;
