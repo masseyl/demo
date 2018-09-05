@@ -2,7 +2,19 @@ import React from "react";
 import styled from "styled-components";
 
 const DetailContainer = props => {
-  return <Container show={props.show}>{props.children}</Container>;
+  const toggle = () => {
+    props.toggle(false);
+  };
+
+  return (
+    <Container
+      onClick={toggle}
+      onMouseMove={event => event.stopPropagation}
+      show={props.show}
+    >
+      {props.children}
+    </Container>
+  );
 };
 const Container = styled.div`
   position: absolute;

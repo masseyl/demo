@@ -54,6 +54,8 @@ class Home extends Component {
   }
 
   componentWillUnmount() {
+    clearInterval(this.showUndoTimer);
+    clearInterval(this.endSwipeTimer);
     window.removeEventListener("resize", this.updateWindowDimensions);
   }
 
@@ -112,17 +114,19 @@ class Home extends Component {
     });
     //and update the view data *AFTER* animations have completed
     //otherwise it looks crappy
-    this.removeTimer = setTimeout(() => {
+    this.showUndoTimer = setTimeout(() => {
       this.props.removeMessage(index);
       this.setState({
         deleteMessageIndex: -1
       });
+      clearInterval(this.showUndoTimer);
     }, this.endRemoveResetDelayMs);
     //yeh it looks weird to have a timeout inside a throttle, but it's efficient
   }, this.removeThrottleMs);
 
   undoDelete = () => {
     this.props.undo();
+    clearInterval(this.showUndoTimer);
   };
 
   updateWindowDimensions = () => {
@@ -132,6 +136,7 @@ class Home extends Component {
       forcer: Math.random()
     });
   };
+
   render() {
     const content = this.props.messages;
     let listHeight = this.state.height ? this.state.height : window.innerHeight;
@@ -154,6 +159,7 @@ class Home extends Component {
               return (
                 <div key={index} style={style}>
                   <SwipeableCard
+                    forcer={this.state.forcer}
                     card={content[index]}
                     deletedMessageIndex={this.state.deleteMessageIndex}
                     endSwiping={this.endSwiping}
@@ -173,11 +179,8 @@ class Home extends Component {
           />
         </ListContainer>
         <Loading showHide={!this.props.messagesLoaded} />
-        <DetailContainer show={this.state.showDetail}>
-          <DetailCard
-            card={content[this.state.swipingIndex || 0]}
-            toggle={this.showDetail}
-          />
+        <DetailContainer toggle={this.showDetail} show={this.state.showDetail}>
+          <DetailCard card={content[this.state.swipingIndex || 0]} />
         </DetailContainer>
       </Background>
     );

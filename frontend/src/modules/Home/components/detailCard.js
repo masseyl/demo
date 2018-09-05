@@ -5,17 +5,13 @@ import { fontColors } from "../../../config/defaults";
 import { endpoints } from "../../../config/defaults";
 
 const DetailCard = props => {
-  const toggle = () => {
-    props.toggle(false);
-  };
-
   if (!props.card) return null;
   const photo = props.card.author.photoUrl;
   const author = props.card.author.name;
   const content = props.card.content;
   const updated = moment(props.card.updated).fromNow();
   return (
-    <Container hide={props.hide} onClick={toggle}>
+    <Container hide={props.hide}>
       <CardContainer>
         <TopRow>
           <Image src={`${endpoints.imagesBase}${photo}`} />
