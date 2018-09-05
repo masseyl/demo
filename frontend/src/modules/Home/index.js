@@ -25,7 +25,7 @@ class Home extends Component {
     this.headerHeight = dimensions.headerHeight;
 
     //loading management
-    this.initialLoadSize = 50;
+    this.initialLoadSize = 100;
     this.lastScroll = 1; //updated every scroll. used to determine when to load the next round of messages
     this.messageThrottleMs = 10; //throttling amount for getting messages
     this.reloadTrigger = 100; //scroll amount before trying to load more messages ()
@@ -69,6 +69,18 @@ class Home extends Component {
         forcer: Math.random()
       });
     }
+  };
+
+  calculateCardHeight = index => {
+    const content = this.props.messages[index];
+    const characters = content.content.length;
+    const lineHeight = dimensions.lineHeight;
+    const verticalPadding = lineHeight * 3;
+    const width = window.innerWidth * 0.84; //92% of 92% closest I could get to responsive width
+    const charsPerLine = width / (lineHeight / 2);
+    const numLines = Math.min(4, Math.ceil(characters / charsPerLine));
+    const height = verticalPadding + numLines * lineHeight + verticalPadding;
+    return Math.min(height, height);
   };
 
   endSwiping = () => {
@@ -120,19 +132,6 @@ class Home extends Component {
       forcer: Math.random()
     });
   };
-
-  calculateCardHeight = index => {
-    const content = this.props.messages[index];
-    const characters = content.content.length;
-    const lineHeight = dimensions.lineHeight;
-    const verticalPadding = lineHeight * 3;
-    const width = window.innerWidth * 0.84; //92% of 92% closest I could get to responsive width
-    const charsPerLine = width / (lineHeight / 2);
-    const numLines = Math.min(4, Math.ceil(characters / charsPerLine));
-    const height = verticalPadding + numLines * lineHeight + verticalPadding;
-    return Math.min(height, height);
-  };
-
   render() {
     const content = this.props.messages;
     let listHeight = this.state.height ? this.state.height : window.innerHeight;
@@ -145,6 +144,7 @@ class Home extends Component {
         <Header zIndex={2} />
         <ListContainer>
           <VirtualList
+            forcer={this.state.forcer}
             overscanCount={this.overscanCount}
             onScroll={this.onScroll}
             height={listHeight}

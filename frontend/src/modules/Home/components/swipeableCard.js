@@ -24,10 +24,13 @@ class SwipeableCard extends Component {
       animationSpeed: this.normalAnimationTime
     };
   }
-
+  componentDidMount() {
+    window.addEventListener("resize", this.updateWindowDimensions);
+  }
   componentWillUnmount = () => {
     clearInterval(this.deletingTimer);
     clearInterval(this.timeout);
+    window.removeEventListener("resize", this.updateWindowDimensions);
   };
 
   onSwipeStart = event => {
@@ -111,7 +114,14 @@ class SwipeableCard extends Component {
     }, 2000);
   }, 2000);
 
+  updateWindowDimensions = () => {
+    this.setState({
+      forcer: Math.random()
+    });
+  };
+
   render() {
+    const forcer = this.state.forcer;
     //deletingMessage is the variable that kicks off animations
     const deletingMessage = this.props.deletedMessageIndex === this.props.index;
     const photo = this.props.card.author.photoUrl;
