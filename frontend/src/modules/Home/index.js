@@ -38,7 +38,7 @@ class Home extends Component {
 
     this.state = {
       cardHeight: 136,
-      confirmed: true,
+      confirmed: false,
       deleteMessageIndex: -1
     };
   }
