@@ -5,7 +5,8 @@ export const fontColors = {
 };
 
 export const dimensions = {
-  headerHeight: "52px"
+  headerHeight: 52,
+  lineHeight: 16
 };
 
 export const endpoints = {

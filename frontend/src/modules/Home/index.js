@@ -15,14 +15,14 @@ import Loading from "./components/loading";
 import SwipeableCard from "./components/swipeableCard";
 import Undo from "./components/undo";
 
-//actions
 import { getMessages, removeMessage } from "./actions";
+import { dimensions } from "../../config/defaults";
 
 class Home extends Component {
   constructor(props) {
     super(props);
 
-    this.headerHeight = 52;
+    this.headerHeight = dimensions.headerHeight;
 
     //loading management
     this.initialLoadSize = 50;
@@ -118,16 +118,19 @@ class Home extends Component {
   };
 
   calculateCardHeight = index => {
+    console.log(dimensions);
     const content = this.props.messages[index];
     const characters = content.content.length;
-    const lineHeight = 16;
-    const width = window.innerWidth * 0.8;
+    const lineHeight = dimensions.lineHeight;
+    const verticalPadding = lineHeight * 3;
+    const width = window.innerWidth * 0.84; //92% of 92% closest I could get to responsive width
     const charsPerLine = width / (lineHeight / 2);
     const numLines = Math.min(4, Math.ceil(characters / charsPerLine));
-    const height = 48 + numLines * lineHeight + lineHeight * 3;
-    console.log(numLines, height);
+    const height = verticalPadding + numLines * lineHeight + verticalPadding;
+    console.log(height);
     return Math.min(height, height);
   };
+
   render() {
     const content = this.props.messages;
     let listHeight = this.state.height ? this.state.height : window.innerHeight;

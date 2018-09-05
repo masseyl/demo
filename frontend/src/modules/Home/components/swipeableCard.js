@@ -5,6 +5,7 @@ import moment from "moment";
 import { throttle } from "lodash";
 import { endpoints } from "../../../config/defaults";
 import { fontColors } from "../../../config/defaults";
+import { dimensions } from "../../../config/defaults";
 
 class SwipeableCard extends Component {
   constructor(props) {
@@ -172,12 +173,12 @@ const Author = styled.div`
 `;
 
 const CardContainer = styled.div`
-  height: ${props => props.height + 35}px;
+  height: ${props => props.height + dimensions.lineHeight * 2 + 3.5}px;
   background-color: white;
   padding: 7px 0 7px 7px;
   overflow: hidden
   transform: translate3d(
-    ${props => (props.deletingMessage ? window.innerWidth * 4 : props.x)}px,
+    ${props => (props.deletingMessage ? window.innerWidth * 2 : props.x)}px,
     0,
     0
   );
@@ -185,7 +186,7 @@ const CardContainer = styled.div`
 `;
 
 const Container = styled.div`
-  height: ${props => props.height + 49}px;
+  height: ${props => props.height + dimensions.lineHeight * 3}px;
   background-color: ${props => (props.inset ? "red" : "transparent")};
   box-shadow: ${props => (props.inset ? "4px 4px 8px" : "0 1px 4px")}
     ${props => (!props.inset ? "#888888" : "white")}
@@ -216,7 +217,6 @@ const Image = styled.img`
   border-radius: 40px;
   border-width: 1px;
   height: 44px;
-  margin-left: 10px;
   margin-right: 10px;
   margin-top: 12px;
   opacity: ${props => (props.deletingMessage ? 0 : 1)}
@@ -236,7 +236,7 @@ const Text = styled.p`
   overflow-y: hidden;
   padding: 7px;
   padding-right: 14px;
-  margin-left: 10px;
+  margin-left: 3.5px;
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   user-select: none;
