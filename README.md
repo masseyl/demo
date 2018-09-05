@@ -16,9 +16,13 @@ I also opted for a single level of undo, since it's a simple add-on with redux u
 _Issues:_
 The first issue was that the messages site threw CORS errors - not nice! So I had to put together a proxy server and toss it up on heroku. If there are any performance issues it'll most likely be because the server fell asleep.
 
-After that it was dealing with the browser sorting through thousands of elements to track the mousedowns for the swipes. Once I went virtual though, that solved it self.
+Second was dealing with the browser sorting through thousands of elements to track the mousedowns for the swipes. Once I went virtual though, that solved it self.
 
-And the specs that I got were pretty vague with no colors, no mention of what to do with the hamburger menu, or whether or not cards should expand to a detail view when clicked or expand inline. I eventually opted for the detail view as it just looked prettier.
+Third... variable card heights in a virtual list in a responsive web app. Ouch... Anyway - once I'd figured out a rough way to calculate the number of lines, I created a "lineHeight" variable and passed it around to the card.
+
+Fourth - making it responsive without much in the way of guidelines. Mostly I worked the widths based on a per centage - the guide was 360px width, the margins were 14px, so I used 92% width as a baseline). Vertical dimensions I kept at absolute pixels which seems to translate nicely between devices.
+
+And the specs that I got were pretty vague - no mention of what to do with the hamburger menu, or whether or not cards should expand to a detail view expand inline, or if there should be an undo. I eventually opted for undo and the detail view as it just looked prettier.
 
 _Explanation of code:_
 

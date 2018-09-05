@@ -38,7 +38,7 @@ class Home extends Component {
 
     this.state = {
       cardHeight: 148,
-      confirmed: true,
+      confirmed: false,
       deleteMessageIndex: -1
     };
   }
@@ -118,7 +118,6 @@ class Home extends Component {
   };
 
   calculateCardHeight = index => {
-    console.log(dimensions);
     const content = this.props.messages[index];
     const characters = content.content.length;
     const lineHeight = dimensions.lineHeight;
@@ -127,7 +126,6 @@ class Home extends Component {
     const charsPerLine = width / (lineHeight / 2);
     const numLines = Math.min(4, Math.ceil(characters / charsPerLine));
     const height = verticalPadding + numLines * lineHeight + verticalPadding;
-    console.log(height);
     return Math.min(height, height);
   };
 
@@ -143,15 +141,12 @@ class Home extends Component {
         <Header zIndex={2} />
         <ListContainer>
           <VirtualList
-            style={{ marginBottom: "200px" }}
             overscanCount={this.overscanCount}
             onScroll={this.onScroll}
             height={listHeight}
             itemCount={content.length}
             itemSize={this.calculateCardHeight}
-            // itemSize={this.state.cardHeight + 10}
             renderItem={({ index, style }) => {
-              console.log("style", style.height);
               return (
                 <div key={index} style={style}>
                   <SwipeableCard
