@@ -37,8 +37,8 @@ class Home extends Component {
     this.endSwipeDelayMs = 1000; // how long to wait before swipe gesture is considered done
 
     this.state = {
-      cardHeight: 136,
-      confirmed: false,
+      cardHeight: 148,
+      confirmed: true,
       deleteMessageIndex: -1
     };
   }
@@ -117,6 +117,17 @@ class Home extends Component {
     this.setState({ height: window.innerHeight, width: window.innerWidth });
   };
 
+  calculateCardHeight = index => {
+    const content = this.props.messages[index];
+    const characters = content.content.length;
+    const lineHeight = 16;
+    const width = window.innerWidth * 0.8;
+    const charsPerLine = width / (lineHeight / 2);
+    const numLines = Math.min(4, Math.ceil(characters / charsPerLine));
+    const height = 48 + numLines * lineHeight + lineHeight * 3;
+    console.log(numLines, height);
+    return Math.min(height, height);
+  };
   render() {
     const content = this.props.messages;
     let listHeight = this.state.height ? this.state.height : window.innerHeight;
@@ -129,29 +140,34 @@ class Home extends Component {
         <Header zIndex={2} />
         <ListContainer>
           <VirtualList
+            style={{ marginBottom: "200px" }}
             overscanCount={this.overscanCount}
             onScroll={this.onScroll}
             height={listHeight}
             itemCount={content.length}
-            itemSize={this.state.cardHeight}
-            renderItem={({ index, style }) => (
-              <div key={index} style={style}>
-                <SwipeableCard
-                  card={content[index]}
-                  deletedMessageIndex={this.state.deleteMessageIndex}
-                  endSwiping={this.endSwiping}
-                  height={this.state.cardHeight - 4}
-                  index={index}
-                  isSwiping={this.state.swiping}
-                  key={index}
-                  removeMessage={this.throttleRemoveMessage}
-                  showDetail={() => this.showDetail(true)}
-                  startSwiping={this.startSwiping}
-                  swipingIndex={this.state.swipingIndex}
-                  width={this.state.width}
-                />
-              </div>
-            )}
+            itemSize={this.calculateCardHeight}
+            // itemSize={this.state.cardHeight + 10}
+            renderItem={({ index, style }) => {
+              console.log("style", style.height);
+              return (
+                <div key={index} style={style}>
+                  <SwipeableCard
+                    card={content[index]}
+                    deletedMessageIndex={this.state.deleteMessageIndex}
+                    endSwiping={this.endSwiping}
+                    height={style.height - 56}
+                    index={index}
+                    isSwiping={this.state.swiping}
+                    key={index}
+                    removeMessage={this.throttleRemoveMessage}
+                    showDetail={() => this.showDetail(true)}
+                    startSwiping={this.startSwiping}
+                    swipingIndex={this.state.swipingIndex}
+                    width={this.state.width}
+                  />
+                </div>
+              );
+            }}
           />
         </ListContainer>
         <Loading showHide={!this.props.messagesLoaded} />

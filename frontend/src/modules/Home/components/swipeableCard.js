@@ -16,7 +16,6 @@ class SwipeableCard extends Component {
     this.normalAnimationTime = 0.05;
     this.lineCount = 3;
     this.fontSize = 14;
-    this.textHeight = this.lineCount * this.fontSize;
     this.state = {
       x: 0,
       scroll: "hidden",
@@ -168,14 +167,15 @@ const Author = styled.div`
   color: ${props => props.color};
   font-size: 14px;
   font-weight: bold;
-  padding-top: 7px;
+  margin-top: 18px;
   user-select: none;
 `;
 
 const CardContainer = styled.div`
+  height: ${props => props.height + 35}px;
   background-color: white;
-  max-height: ${props => (props.height ? props.height : 134)}px;
   padding: 7px 0 7px 7px;
+  overflow: hidden
   transform: translate3d(
     ${props => (props.deletingMessage ? window.innerWidth * 4 : props.x)}px,
     0,
@@ -185,12 +185,12 @@ const CardContainer = styled.div`
 `;
 
 const Container = styled.div`
+  height: ${props => props.height + 49}px;
   background-color: ${props => (props.inset ? "red" : "transparent")};
   box-shadow: ${props => (props.inset ? "4px 4px 8px" : "0 1px 4px")}
     ${props => (!props.inset ? "#888888" : "white")}
     ${props => (props.inset ? "inset" : null)};
 
-  height: ${props => (props.height ? props.height : 134)}px;
   margin-bottom: 3px;
   margin-left: 4%;
   opacity: ${props => (props.deletingMessage ? 0.0 : 1)};
@@ -213,12 +213,14 @@ const ElapsedTime = styled.p`
 `;
 
 const Image = styled.img`
-  border-radius: 30px;
+  border-radius: 40px;
   border-width: 1px;
-  height: 40px;
+  height: 44px;
+  margin-left: 10px;
   margin-right: 10px;
+  margin-top: 12px;
   opacity: ${props => (props.deletingMessage ? 0 : 1)}
-  width: 40px;
+  width: 44px;
 `;
 
 const NameBox = styled.div`
@@ -229,10 +231,13 @@ const Text = styled.p`
   color: ${props => props.color};
   display: -webkit-box;
   font-size: 14px;
-  height: 42px;
+  line-height: 16px;
+  max-height: 56px;
   overflow-y: hidden;
   padding: 7px;
-  -webkit-line-clamp: 3;
+  padding-right: 14px;
+  margin-left: 10px;
+  -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   user-select: none;
 `;
