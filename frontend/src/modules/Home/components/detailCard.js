@@ -8,6 +8,7 @@ const DetailCard = props => {
   const toggle = () => {
     props.toggle(false);
   };
+
   if (!props.card) return null;
   const photo = props.card.author.photoUrl;
   const author = props.card.author.name;

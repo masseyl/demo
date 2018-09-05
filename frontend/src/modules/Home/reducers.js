@@ -29,8 +29,6 @@ const moduleReducer = (state = INITIAL_STATE, action) => {
       newState.pageToken = action.response.pageToken;
       messages = messages.concat(action.response.messages);
       //not sure this is needed since messages seem to all be timestamped 4 years ago...
-      //but even at a few thousand messsages this seemed to not slow anything down
-      //so here it is.
       messages.sort((a, b) => {
         if (moment(a.updated).isSame(b.updated)) return 0;
         if (moment(a.updated).isBefore(b.updated)) return -1;

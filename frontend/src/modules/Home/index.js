@@ -26,21 +26,20 @@ class Home extends Component {
 
     //loading management
     this.initialLoadSize = 50;
-    this.lastScroll = 1; //used to determine when to load the next round of messages
-    this.messageThrottleMs = 10; //throttling for getting messages
+    this.lastScroll = 1; //updated every scroll. used to determine when to load the next round of messages
+    this.messageThrottleMs = 10; //throttling amount for getting messages
     this.reloadTrigger = 100; //scroll amount before trying to load more messages ()
     this.subsequentLoadSize = 100;
 
     //undeo management
-    this.endRemoveResetDelayMs = 500; //how long to wait to remove Undo
-    this.removeThrottleMs = 2000;
+    this.endRemoveResetDelayMs = 500; //how long to wait to remove Undo popup
+    this.removeThrottleMs = 2000; // how quickly can messages be deleted
     this.endSwipeDelayMs = 1000; // how long to wait before swipe gesture is considered done
 
     this.state = {
-      deleteMessageIndex: -1,
+      cardHeight: 136,
       confirmed: true,
-      messages: [],
-      cardHeight: 136
+      deleteMessageIndex: -1
     };
   }
 
@@ -58,6 +57,7 @@ class Home extends Component {
     window.removeEventListener("resize", this.updateWindowDimensions);
   }
 
+  /* If we've scrolled forward far enough replenish the list */
   onScroll = evt => {
     const reloadThreshold =
       evt / this.reloadTrigger - Math.floor(evt / this.reloadTrigger);
@@ -77,10 +77,6 @@ class Home extends Component {
       this.setState({ swiping: false });
       clearInterval(this.endSwipeTimer);
     }, this.endSwipeDelayMs);
-  };
-
-  removeMessage = index => {
-    this.throttleRemoveMessage(index);
   };
 
   showDetail = showHide => {
@@ -148,7 +144,7 @@ class Home extends Component {
                   index={index}
                   isSwiping={this.state.swiping}
                   key={index}
-                  removeMessage={this.removeMessage}
+                  removeMessage={this.throttleRemoveMessage}
                   showDetail={() => this.showDetail(true)}
                   startSwiping={this.startSwiping}
                   swipingIndex={this.state.swipingIndex}

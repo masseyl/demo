@@ -12,7 +12,8 @@ class SwipeableCard extends Component {
     this.velocityArray = [0];
     this.lastX = 0;
     this.endSwipeTimeout = 500;
-    this.fastAnimationTime = 0.005;
+    this.fastAnimationTime = this.fastAnimationTime;
+    this.normalAnimationTime = 0.05;
     this.lineCount = 3;
     this.fontSize = 14;
     this.textHeight = this.lineCount * this.fontSize;
@@ -20,7 +21,7 @@ class SwipeableCard extends Component {
       x: 0,
       scroll: "hidden",
       isCollapsed: true,
-      animationSpeed: 0.05
+      animationSpeed: this.normalAnimationTime
     };
   }
 
@@ -89,7 +90,7 @@ class SwipeableCard extends Component {
     this.setState({
       iAmSwiping: false,
       x: 0,
-      animationSpeed: 0.005
+      animationSpeed: this.normalAnimationTime
     });
     this.timeout = setTimeout(() => {
       this.props.endSwiping();
@@ -138,8 +139,6 @@ class SwipeableCard extends Component {
             onClick={this.props.showDetail}
             deletingMessage={deletingMessage}
             height={this.props.height}
-            scaleX={this.state.scaleX}
-            scaleY={this.state.scaleY}
             x={this.state.x}
             animationSpeed={this.state.animationSpeed}
           >
@@ -149,15 +148,11 @@ class SwipeableCard extends Component {
                 deletingMessage={deletingMessage}
               />
               <NameBox>
-                <Author>{author}</Author>
-                <ElapsedTime>{updated}</ElapsedTime>
+                <Author color={fontColors.dark}>{author}</Author>
+                <ElapsedTime color={fontColors.light}>{updated}</ElapsedTime>
               </NameBox>
             </TopRow>
-            <Text
-              onClick={this.toggleDetail}
-              scroll={this.state.scroll}
-              onScroll={this.onScroll}
-            >
+            <Text onClick={this.toggleDetail} color={fontColors.medium}>
               {content}
             </Text>
           </CardContainer>
@@ -196,8 +191,8 @@ const Container = styled.div`
     ${props => (props.inset ? "inset" : null)};
 
   height: ${props => (props.height ? props.height : 134)}px;
-  margin-left: 4%;
   margin-bottom: 3px;
+  margin-left: 4%;
   opacity: ${props => (props.deletingMessage ? 0.0 : 1)};
   transform: scale3d(
     ${props => (props.deletingMessage ? -0.25 : 1)},
@@ -211,7 +206,7 @@ const Container = styled.div`
 
 const ElapsedTime = styled.p`
   border-width: 1px;
-  color: rgba(99, 99, 99, 0.6);
+  color: ${props => props.color};
   font-size: 12px;
   margin-top: 1px;
   user-select: none;
@@ -231,15 +226,14 @@ const NameBox = styled.div`
 `;
 
 const Text = styled.p`
-  color: rgba(11, 11, 11, 0.8);
-  overflow-y: hidden;
-  padding: 7px;
+  color: ${props => props.color};
+  display: -webkit-box;
   font-size: 14px;
   height: 42px;
-  display: -webkit-box;
+  overflow-y: hidden;
+  padding: 7px;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
-  overflow-y: ${props => props.scroll};
   user-select: none;
 `;
 
