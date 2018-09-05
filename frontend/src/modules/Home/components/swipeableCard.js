@@ -97,6 +97,7 @@ class SwipeableCard extends Component {
       this.setState({ animationSpeed: this.fastAnimationTime });
       clearInterval(this.timeout);
     }, this.endSwipeTimeout);
+    this.lastX = window.innerWidth * 2;
   };
 
   start = event => {
