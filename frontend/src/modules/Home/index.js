@@ -114,7 +114,11 @@ class Home extends Component {
   };
 
   updateWindowDimensions = () => {
-    this.setState({ height: window.innerHeight, width: window.innerWidth });
+    this.setState({
+      height: window.innerHeight,
+      width: window.innerWidth,
+      forcer: Math.random()
+    });
   };
 
   calculateCardHeight = index => {
