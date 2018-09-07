@@ -158,7 +158,10 @@ class Home extends Component {
         <Header zIndex={2} />
         <ListContainer>
           <VirtualList
-            width={width * 0.88 + "px"}
+            style={{
+              overflowX: "hidden",
+              backgroundColor: "blue"
+            }}
             forcer={this.state.forcer}
             overscanCount={this.overscanCount}
             onScroll={this.onScroll}
