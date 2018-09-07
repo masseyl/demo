@@ -143,9 +143,8 @@ class Home extends Component {
 
   render() {
     const content = this.props.messages;
-    const width = this.state.width;
-    if (!this.state.height) return null;
-    let listHeight = this.state.height;
+    const width = this.state.width || window.innerWidth;
+    let listHeight = this.state.height || window.innerHeight;
     listHeight -= this.headerHeight;
     if (!this.state.confirmed) return null;
 
@@ -159,6 +158,7 @@ class Home extends Component {
         <Header zIndex={2} />
         <ListContainer>
           <VirtualList
+            width={width * 0.88 + "px"}
             forcer={this.state.forcer}
             overscanCount={this.overscanCount}
             onScroll={this.onScroll}
