@@ -43,6 +43,7 @@ const Container = styled.div`
   height: 52px;
   width: 100%;
   -webkit-backface-visibility: hidden;
+  -webkit-transform-style: preserve-3d;
   background-color: rgba(96, 64, 176, 0.99);
 `;
 

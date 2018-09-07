@@ -52,6 +52,9 @@ export default connect(
 )(Undo);
 
 const Container = styled.div`
+-webkit-backface-visibility: hidden;
+-webkit-transform-style: preserve-3d;
+
 	position: absolute;
 	top: 7px;
 	visibility: ${props => (props.showHide ? "visible" : "hidden")}

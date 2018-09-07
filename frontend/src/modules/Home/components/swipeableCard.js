@@ -184,6 +184,7 @@ const Author = styled.div`
 
 const CardContainer = styled.div`
 -webkit-backface-visibility: hidden;
+-webkit-transform-style: preserve-3d;
 
   height: ${props => props.height + dimensions.lineHeight * 2 + 3.5}px;
   background-color: white;
