@@ -38,6 +38,7 @@ class SwipeableCard extends Component {
 
   onSwipeMove = (position, event) => {
     event.stopPropagation();
+    event.preventDefault();
     if (this.state.iAmSwiping) {
       this.determineSwipeResponse(position.x, position.y);
     }
