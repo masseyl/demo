@@ -46,7 +46,7 @@ class Home extends Component {
   componentDidMount() {
     this.updateWindowDimensions();
     window.addEventListener("resize", this.updateWindowDimensions);
-    this.props.getMessages(this.initialLoadSize, this.props.pageToken);
+    // this.props.getMessages(this.initialLoadSize, this.props.pageToken);
     if (!this.state.confirmed) {
       const confirmationPrompt = prompt("Please enter THE CODE");
       this.setState({ confirmed: confirmationPrompt === "fluffy" });
