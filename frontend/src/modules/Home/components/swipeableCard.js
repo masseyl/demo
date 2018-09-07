@@ -13,8 +13,7 @@ class SwipeableCard extends Component {
     this.velocityArray = [0];
     this.lastX = 0;
     this.endSwipeTimeout = 500;
-    this.fastAnimationTime = this.fastAnimationTime;
-    this.normalAnimationTime = 0.05;
+    this.normalAnimationTime = 0.1;
     this.lineCount = 3;
     this.fontSize = 14;
     this.state = {
@@ -31,7 +30,10 @@ class SwipeableCard extends Component {
   };
 
   onSwipeStart = event => {
-    this.setState({ iAmSwiping: true });
+    this.setState({
+      iAmSwiping: true,
+      animationSpeed: this.normalAnimationTime
+    });
   };
 
   onSwipeMove = (position, event) => {
@@ -79,9 +81,15 @@ class SwipeableCard extends Component {
       this.lastX = 0;
       this.endSwiping();
     } else {
-      this.setState({
-        x: xx > 0 ? xx : 0
-      });
+      if (xx > 0 && xx > this.lastX) {
+        this.setState({
+          x: xx
+        });
+      } else if (xx <= 0) {
+        this.setState({
+          x: 0
+        });
+      }
     }
     this.lastX = xx;
   };
@@ -94,7 +102,6 @@ class SwipeableCard extends Component {
     });
     this.timeout = setTimeout(() => {
       this.props.endSwiping();
-      this.setState({ animationSpeed: this.fastAnimationTime });
       clearInterval(this.timeout);
     }, this.endSwipeTimeout);
     this.lastX = window.innerWidth * 2;
@@ -181,7 +188,10 @@ const CardContainer = styled.div`
   padding: 7px 0 7px 7px;
   overflow: hidden
   transform: translate3d(
-    ${props => (props.deletingMessage ? window.innerWidth * 2 : props.x)}px,
+    ${props => {
+      console.log(props.x);
+      return props.deletingMessage ? window.innerWidth * 2 : props.x;
+    }}px,
     0,
     0
   );
