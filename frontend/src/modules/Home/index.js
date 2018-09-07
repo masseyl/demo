@@ -23,7 +23,7 @@ class Home extends Component {
     super(props);
 
     this.headerHeight = dimensions.headerHeight;
-
+    this.overscanCount = 10;
     //loading management
     this.initialLoadSize = 100;
     this.lastScroll = 1; //updated every scroll. used to determine when to load the next round of messages
