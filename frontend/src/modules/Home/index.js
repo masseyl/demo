@@ -147,12 +147,11 @@ class Home extends Component {
     if (!this.state.confirmed) return null;
 
     return (
-      <Background width={width}>
+      <Background>
         <Undo onClick={this.undoDelete} showHide={this.props.removingMessage} />
         <Header zIndex={2} />
-        <ListContainer width={width}>
+        <ListContainer>
           <VirtualList
-            width={width * 0.92}
             forcer={this.state.forcer}
             overscanCount={this.overscanCount}
             onScroll={this.onScroll}
@@ -163,7 +162,6 @@ class Home extends Component {
               return (
                 <div key={index} style={style}>
                   <SwipeableCard
-                    width={width}
                     forcer={this.state.forcer}
                     card={content[index]}
                     deletedMessageIndex={this.state.deleteMessageIndex}
