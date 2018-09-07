@@ -138,13 +138,16 @@ class Home extends Component {
   };
 
   render() {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const width = isIOS ? window.screen.width : window.innerWidth;
+
     const content = this.props.messages;
     let listHeight = this.state.height ? this.state.height : window.innerHeight;
     listHeight -= this.headerHeight;
     if (!this.state.confirmed) return null;
 
     return (
-      <Background>
+      <Background width={width}>
         <Undo onClick={this.undoDelete} showHide={this.props.removingMessage} />
         <Header zIndex={2} />
         <ListContainer>
@@ -159,6 +162,7 @@ class Home extends Component {
               return (
                 <div key={index} style={style}>
                   <SwipeableCard
+                    width={width}
                     forcer={this.state.forcer}
                     card={content[index]}
                     deletedMessageIndex={this.state.deleteMessageIndex}

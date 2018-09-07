@@ -130,6 +130,8 @@ class SwipeableCard extends Component {
     const updated = moment(this.props.card.updated).fromNow();
     return (
       <Container
+        width={this.props.width - this.state.x}
+        x={this.state.x}
         onMouseDown={this.start}
         onTouchStart={this.start}
         background={this.state.background}
@@ -146,6 +148,7 @@ class SwipeableCard extends Component {
           onSwipeEnd={this.onSwipeEnd}
         >
           <CardContainer
+            width={this.props.width - this.state.x}
             onClick={this.props.showDetail}
             deletingMessage={deletingMessage}
             height={this.props.height}
@@ -183,6 +186,7 @@ const Author = styled.div`
 `;
 
 const CardContainer = styled.div`
+  width: ${props => props.width - 300}px;
   height: ${props => props.height + dimensions.lineHeight * 2 + 3.5}px;
   background-color: white;
   padding: 7px 0 7px 7px;
@@ -199,6 +203,7 @@ const CardContainer = styled.div`
 `;
 
 const Container = styled.div`
+  width: ${props => props.width - 300}px;
   height: ${props => props.height + dimensions.lineHeight * 3}px;
   background-color: ${props => (props.inset ? "red" : "transparent")};
   box-shadow: ${props => (props.inset ? "4px 4px 8px" : "0 1px 4px")}
