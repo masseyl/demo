@@ -42,6 +42,7 @@ const Container = styled.div`
   align-items: center;
   height: 52px;
   width: 100%;
+  -webkit-backface-visibility: hidden;
   background-color: rgba(96, 64, 176, 0.99);
 `;
 

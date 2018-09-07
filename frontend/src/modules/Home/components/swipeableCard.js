@@ -183,6 +183,8 @@ const Author = styled.div`
 `;
 
 const CardContainer = styled.div`
+-webkit-backface-visibility: hidden;
+
   height: ${props => props.height + dimensions.lineHeight * 2 + 3.5}px;
   background-color: white;
   padding: 7px 0 7px 7px;
@@ -199,6 +201,8 @@ const CardContainer = styled.div`
 `;
 
 const Container = styled.div`
+  -webkit-backface-visibility: hidden;
+
   height: ${props => props.height + dimensions.lineHeight * 3}px;
   background-color: ${props => (props.inset ? "red" : "transparent")};
   box-shadow: ${props => (props.inset ? "4px 4px 8px" : "0 1px 4px")}

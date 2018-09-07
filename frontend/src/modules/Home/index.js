@@ -144,7 +144,8 @@ class Home extends Component {
   render() {
     const content = this.props.messages;
     const width = this.state.width;
-    let listHeight = this.state.height ? this.state.height : window.innerHeight;
+    if (!this.state.height) return null;
+    let listHeight = this.state.height;
     listHeight -= this.headerHeight;
     if (!this.state.confirmed) return null;
 

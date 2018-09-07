@@ -20,7 +20,7 @@ const Container = styled.div`
   width: ${props => props.width}px;
   height: 100vh;
   background-color: rgba(238, 238, 238, 0.9);
-  overflow: hidden;
+  -webkit-backface-visibility: hidden;
 `;
 
 const InnerContainer = styled.div`
