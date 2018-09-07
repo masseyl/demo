@@ -150,8 +150,9 @@ class Home extends Component {
       <Background width={width}>
         <Undo onClick={this.undoDelete} showHide={this.props.removingMessage} />
         <Header zIndex={2} />
-        <ListContainer>
+        <ListContainer width={width}>
           <VirtualList
+            width={width * 0.92}
             forcer={this.state.forcer}
             overscanCount={this.overscanCount}
             onScroll={this.onScroll}
