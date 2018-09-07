@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 const Loading = props => {
   return (
-    <Container showHide={props.showHide}>
+    <Container showHide={props.showHide} width={props.width}>
       <Spinner src="./assets/spinner.apng" />
     </Container>
   );
@@ -15,11 +15,12 @@ const Container = styled.div`
   visibility: ${props => (props.showHide ? "visible" : "hidden")};
   z-index: 9999;
   height: 48px;
-  width: 96%;
+  width: 88%;
+  max-width: ${props => props.width * 0.88}px;
   box-shadow: 2px 5px 40px 0;
   background-color: black;
   border-radius: 2px;
-  margin-left: 2%;
+  margin-left: 6%;
   display: flex;
   align-items: center;
   justify-content: center;

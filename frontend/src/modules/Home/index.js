@@ -46,11 +46,11 @@ class Home extends Component {
   componentDidMount() {
     this.updateWindowDimensions();
     window.addEventListener("resize", this.updateWindowDimensions);
-    // this.props.getMessages(this.initialLoadSize, this.props.pageToken);
     if (!this.state.confirmed) {
       const confirmationPrompt = prompt("Please enter THE CODE");
       this.setState({ confirmed: confirmationPrompt === "fluffy" });
     }
+    this.props.getMessages(this.initialLoadSize, this.props.pageToken);
   }
 
   componentWillUnmount() {
@@ -130,25 +130,31 @@ class Home extends Component {
   };
 
   updateWindowDimensions = () => {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const width = isIOS ? window.screen.width : window.innerWidth;
+    const height = isIOS ? window.screen.height : window.innerHeight;
+
     this.setState({
-      height: window.innerHeight,
-      width: window.innerWidth,
+      height,
+      width,
       forcer: Math.random()
     });
   };
 
   render() {
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const width = isIOS ? window.screen.width : window.innerWidth;
-
     const content = this.props.messages;
+    const width = this.state.width;
     let listHeight = this.state.height ? this.state.height : window.innerHeight;
     listHeight -= this.headerHeight;
     if (!this.state.confirmed) return null;
 
     return (
       <Background>
-        <Undo onClick={this.undoDelete} showHide={this.props.removingMessage} />
+        <Undo
+          onClick={this.undoDelete}
+          showHide={this.props.removingMessage}
+          width={width}
+        />
         <Header zIndex={2} />
         <ListContainer>
           <VirtualList
@@ -181,8 +187,12 @@ class Home extends Component {
             }}
           />
         </ListContainer>
-        <Loading showHide={!this.props.messagesLoaded} />
-        <DetailContainer toggle={this.showDetail} show={this.state.showDetail}>
+        <Loading showHide={!this.props.messagesLoaded} width={width} />
+        <DetailContainer
+          toggle={this.showDetail}
+          show={this.state.showDetail}
+          width={width}
+        >
           <DetailCard card={content[this.state.swipingIndex || 0]} />
         </DetailContainer>
       </Background>
