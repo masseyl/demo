@@ -22,6 +22,7 @@ class SwipeableCard extends Component {
       isCollapsed: true,
       animationSpeed: this.normalAnimationTime
     };
+    this.swiper = React.createRef();
   }
 
   componentWillUnmount = () => {
@@ -104,12 +105,14 @@ class SwipeableCard extends Component {
       this.props.endSwiping();
       clearInterval(this.timeout);
     }, this.endSwipeTimeout);
-    this.lastX = window.innerWidth * 2;
+    this.lastX = window.innerWidth * 4;
   };
 
   start = event => {
+    console.log(event.nativeEvent);
     event.stopPropagation();
     this.props.startSwiping(this.props.index);
+    // console.log(this.swipery);
   };
 
   throttleDeleteMessage = throttle(() => {
@@ -140,6 +143,7 @@ class SwipeableCard extends Component {
         scaleY={this.state.scaleY}
       >
         <Swipe
+          ref={this.swiper}
           allowMouseEvents
           onSwipeStart={this.onSwipeStart}
           onSwipeMove={this.onSwipeMove}
@@ -192,7 +196,6 @@ const CardContainer = styled.div`
   overflow: hidden
   transform: translate3d(
     ${props => {
-      console.log(props.x);
       return props.deletingMessage ? window.innerWidth * 2 : props.x;
     }}px,
     0,
