@@ -99,7 +99,7 @@ class SwipeableCard extends Component {
     this.setState({
       iAmSwiping: false,
       x: 0,
-      animationSpeed: this.normalAnimationTime
+      animationSpeed: this.fastAnimationTime
     });
     this.timeout = setTimeout(() => {
       this.props.endSwiping();
@@ -112,7 +112,6 @@ class SwipeableCard extends Component {
     console.log(event.nativeEvent);
     event.stopPropagation();
     this.props.startSwiping(this.props.index);
-    // console.log(this.swipery);
   };
 
   throttleDeleteMessage = throttle(() => {
