@@ -2,16 +2,17 @@ import React, { Component } from "react";
 import styled from "styled-components";
 import Swipe from "react-easy-swipe";
 import moment from "moment";
-
+import { debounce } from "lodash";
 import { endpoints, fontColors, dimensions } from "../../../config/defaults";
 
 class SwipeableCard extends Component {
   constructor(props) {
     super(props);
     this.velocityArray = [0];
+    this.before = 0;
     this.lastX = 0;
     this.endSwipeTimeoutMs = 200;
-    this.CSSAnimationTimeMs = 0.2;
+    this.CSSAnimationTimeMs = 0.1;
     this.lineCount = 3;
     this.fontSize = 14;
     this.state = {
@@ -34,7 +35,7 @@ class SwipeableCard extends Component {
   onSwipeMove = (position, event) => {
     event.stopPropagation();
     if (this.iAmSwiping && this.mouseIsDown) {
-      this.determineSwipeResponse(position.x);
+      this.debounceScroll(position);
     }
     this.iAmSwiping = true;
   };
@@ -58,6 +59,10 @@ class SwipeableCard extends Component {
     }, this.endSwipeTimeoutMs);
   };
 
+  debounceScroll = debounce(position => {
+    this.determineSwipeResponse(position.x);
+  }, 5);
+
   determineSwipeResponse = xx => {
     if (xx > this.props.width * 0.3 && !this.state.deletingMessage) {
       this.deleteMessage();
@@ -71,7 +76,10 @@ class SwipeableCard extends Component {
         x: this.lastX
       });
     }
-    console.log(this.state.x);
+    // const now = Date.now();
+    // const delta = now - this.before;
+    // // console.log(this.state.x, delta);
+    // this.before = now;
   };
 
   deleteMessage = () => {
