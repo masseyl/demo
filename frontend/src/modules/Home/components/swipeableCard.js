@@ -2,46 +2,41 @@ import React, { Component } from "react";
 import styled from "styled-components";
 import Swipe from "react-easy-swipe";
 import moment from "moment";
-import { throttle } from "lodash";
-import { endpoints } from "../../../config/defaults";
-import { fontColors } from "../../../config/defaults";
-import { dimensions } from "../../../config/defaults";
+
+import { endpoints, fontColors, dimensions } from "../../../config/defaults";
 
 class SwipeableCard extends Component {
   constructor(props) {
     super(props);
     this.velocityArray = [0];
     this.lastX = 0;
-    this.endSwipeTimeout = 500;
-    this.normalAnimationTime = 0.1;
+    this.endSwipeTimeoutMs = 200;
+    this.CSSAnimationTimeMs = 0.2;
     this.lineCount = 3;
     this.fontSize = 14;
     this.state = {
-      x: 0,
-      scroll: "hidden",
-      isCollapsed: true,
-      animationSpeed: this.normalAnimationTime
+      x: 0
     };
-    this.swiper = React.createRef();
   }
 
   componentWillUnmount = () => {
-    clearInterval(this.deletingTimer);
-    clearInterval(this.timeout);
+    clearInterval(this.deleteAnimationTimer);
+    clearInterval(this.endSwipingTimeout);
   };
 
   onSwipeStart = event => {
-    this.setState({
-      iAmSwiping: true,
-      animationSpeed: this.normalAnimationTime
-    });
+    event.stopPropagation();
+    this.mouseIsDown = true;
+    this.lastX = 0;
+    this.props.startSwiping(this.props.index);
   };
 
   onSwipeMove = (position, event) => {
     event.stopPropagation();
-    if (this.state.iAmSwiping) {
-      this.determineSwipeResponse(position.x, position.y);
+    if (this.iAmSwiping && this.mouseIsDown) {
+      this.determineSwipeResponse(position.x);
     }
+    this.iAmSwiping = true;
   };
 
   onSwipeEnd = event => {
@@ -49,111 +44,82 @@ class SwipeableCard extends Component {
     this.endSwiping();
   };
 
-  calculateVelocity = xx => {
-    const deltaX = xx - this.lastX;
+  endSwiping = () => {
+    this.setState({
+      x: 0
+    });
+    console.log("endSwiping");
+    this.mouseIsDown = false;
+    this.iAmSwiping = false;
 
-    let velocity = 0;
-    let velocityArray = [...this.velocityArray];
-    velocityArray.push(deltaX);
-
-    if (velocityArray.length > 10) {
-      if (velocityArray.length >= 11) {
-        velocityArray.unshift();
-      }
-
-      velocity = velocityArray.reduce(
-        (average, nextValue) => (average + nextValue) / velocityArray.length,
-        velocityArray[0]
-      );
-    }
-    this.velocityArray = velocityArray;
-    return velocity;
+    this.endSwipingTimeout = setTimeout(() => {
+      this.props.endSwiping();
+      clearInterval(this.endSwipingTimeout);
+    }, this.endSwipeTimeoutMs);
   };
 
   determineSwipeResponse = xx => {
-    const velocity = this.calculateVelocity(xx);
-    if (
-      (xx > this.lastX && xx > this.props.width * 0.3) ||
-      (velocity > 2 && !this.state.deletingMessage)
-    ) {
-      this.setState({ deletingMessage: true });
-      this.throttleDeleteMessage();
+    if (xx > this.props.width * 0.3 && !this.state.deletingMessage) {
+      this.deleteMessage();
+      this.endSwiping();
       this.velocityArray = [0];
       this.lastX = 0;
-      this.endSwiping();
     } else {
-      if (xx > 0 && xx > this.lastX) {
-        this.setState({
-          x: xx
-        });
-      } else if (xx <= 0) {
-        this.setState({
-          x: 0
-        });
-      }
+      this.lastX = xx;
+      this.lastX = this.lastX > 0 ? this.lastX : 0;
+      this.setState({
+        x: this.lastX
+      });
     }
-    this.lastX = xx;
+    console.log(this.state.x);
   };
 
-  endSwiping = () => {
-    this.setState({
-      iAmSwiping: false,
-      x: 0,
-      animationSpeed: this.fastAnimationTime
-    });
-    this.timeout = setTimeout(() => {
-      this.props.endSwiping();
-      clearInterval(this.timeout);
-    }, this.endSwipeTimeout);
-    this.lastX = window.innerWidth * 4;
-  };
-
-  start = event => {
-    console.log(event.nativeEvent);
-    event.stopPropagation();
-    this.props.startSwiping(this.props.index);
-  };
-
-  throttleDeleteMessage = throttle(() => {
-    this.setState({ iAmSwiping: false });
+  deleteMessage = () => {
+    this.setState({ deletingMessage: true });
     this.props.removeMessage(this.props.index);
-    this.deletingTimer = setTimeout(() => {
+
+    this.deleteAnimationTimer = setTimeout(() => {
       this.setState({ deletingMessage: false });
     }, 2000);
-  }, 2000);
+  };
 
+  showDetail = () => {
+    console.log("showDetail 1");
+    if (this.mouseIsDown && !this.iAmSwiping) {
+      this.mouseIsDown = false;
+      this.props.showDetail(true);
+    }
+  };
   render() {
+    //"forcer" is a random number used to make sure the virtual list re-renders cards
+    // on new items being added/removed from redux
     const forcer = this.props.forcer;
-    //deletingMessage is the variable that kicks off animations
+    //deletingMessage is the variable that kicks off CSS animations
     const deletingMessage = this.props.deletedMessageIndex === this.props.index;
+    //content values
     const photo = this.props.card.author.photoUrl;
     const author = this.props.card.author.name;
     const content = this.props.card.content;
     const updated = moment(this.props.card.updated).fromNow();
     return (
       <Container
-        onMouseDown={this.start}
-        onTouchStart={this.start}
+        onMouseUp={this.showDetail}
         background={this.state.background}
         deletingMessage={deletingMessage}
         height={this.props.height}
-        inset={this.state.x > 0}
-        scaleX={this.state.scaleX}
-        scaleY={this.state.scaleY}
+        swiping={this.state.x > 0}
       >
         <Swipe
-          ref={this.swiper}
           allowMouseEvents
           onSwipeStart={this.onSwipeStart}
           onSwipeMove={this.onSwipeMove}
           onSwipeEnd={this.onSwipeEnd}
         >
           <CardContainer
-            onClick={this.props.showDetail}
             deletingMessage={deletingMessage}
             height={this.props.height}
             x={this.state.x}
-            animationSpeed={this.state.animationSpeed}
+            animationSpeed={this.CSSAnimationTimeMs}
           >
             <TopRow>
               <Image
@@ -185,7 +151,10 @@ const Author = styled.div`
   user-select: none;
 `;
 
-const CardContainer = styled.div`
+//the visibility and preserve3d are to minimize flickering on ios safari
+const CardContainer = styled.div.attrs({
+  style: ({ transform }) => ({ transform })
+})`
 -webkit-backface-visibility: hidden;
 -webkit-transform-style: preserve-3d;
 
@@ -195,7 +164,7 @@ const CardContainer = styled.div`
   overflow: hidden
   transform: translate3d(
     ${props => {
-      return props.deletingMessage ? window.innerWidth * 2 : props.x;
+      return props.deletingMessage ? 0 : props.x;
     }}px,
     0,
     0
@@ -203,14 +172,17 @@ const CardContainer = styled.div`
   transition: transform ${props => props.animationSpeed}s ease-out;
 `;
 
-const Container = styled.div`
+const Container = styled.div.attrs({
+  style: ({ transform }) => ({ transform })
+})`
+  -webkit-transform-style: preserve-3d;
   -webkit-backface-visibility: hidden;
 
   height: ${props => props.height + dimensions.lineHeight * 3}px;
-  background-color: ${props => (props.inset ? "red" : "transparent")};
-  box-shadow: ${props => (props.inset ? "4px 4px 8px" : "0 1px 4px")}
-    ${props => (!props.inset ? "#888888" : "white")}
-    ${props => (props.inset ? "inset" : null)};
+  background-color: ${props => (props.swiping ? "red" : "transparent")};
+  box-shadow: ${props => (props.swiping ? "4px 4px 4px inset" : "-1px 4px 8px")}
+    ${props => (!props.swiping ? "#888888" : "white")}
+    ${props => (props.swiping ? "swiping" : null)};
 
   margin-bottom: 3px;
   margin-left: 4%;

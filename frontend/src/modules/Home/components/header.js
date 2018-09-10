@@ -32,6 +32,9 @@ class Header extends PureComponent {
 export default Header;
 
 const Container = styled.div`
+  -webkit-transform-style: preserve-3d;
+  -webkit-backface-visibility: hidden;
+
   z-index: ${props => props.zIndex};
   position: fixed;
   top: 0;

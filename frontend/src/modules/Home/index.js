@@ -121,7 +121,6 @@ class Home extends Component {
       });
       clearInterval(this.showUndoTimer);
     }, this.endRemoveResetDelayMs);
-    //yeh it looks weird to have a timeout inside a throttle, but it's efficient
   }, this.removeThrottleMs);
 
   undoDelete = () => {
@@ -180,7 +179,7 @@ class Home extends Component {
                     isSwiping={this.state.swiping}
                     key={index}
                     removeMessage={this.throttleRemoveMessage}
-                    showDetail={() => this.showDetail(true)}
+                    showDetail={this.showDetail}
                     startSwiping={this.startSwiping}
                     swipingIndex={this.state.swipingIndex}
                     width={this.state.width}
