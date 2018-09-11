@@ -133,7 +133,7 @@ class Home extends Component {
     let width = window.innerWidth;
     let height = window.innerHeight;
     if (isIOS) {
-      alert("width: " + width + ", height: " + height);
+      alert("BEFORE::width: " + width + ", height: " + height);
       const orientation =
         window.orientation || window.screen.orientation || screen.orientation;
       console.log(orientation);
@@ -150,7 +150,7 @@ class Home extends Component {
           height = temp;
         }
       }
-      alert("width: " + width + ", height: " + height);
+      alert("AFTER::width: " + width + ", height: " + height);
     }
     this.setState({
       height,
