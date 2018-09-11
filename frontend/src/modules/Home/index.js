@@ -132,12 +132,12 @@ class Home extends Component {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     let width;
     let height;
-    if (!isIOS) {
-      width = window.innerWidth;
-      height = window.innerHeight;
-    } else {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    if (isIOS) {
       const orientation = window.screen.orientation.type;
-      if (orientation.indexOf("landscape") < -1) {
+      console.log(orientation);
+      if (orientation.indexOf("landscape") > -1) {
         let temp;
         width = window.screen.width;
         height = window.screen.height;
