@@ -19,8 +19,8 @@ const Container = styled.div`
   -webkit-transform-style: preserve-3d;
   position: fixed;
   justify-content: center;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   background-color: rgba(238, 238, 238, 0.9);
   -webkit-backface-visibility: hidden;
 `;

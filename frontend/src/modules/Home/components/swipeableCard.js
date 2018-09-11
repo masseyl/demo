@@ -41,6 +41,7 @@ class SwipeableCard extends Component {
 
   onSwipeEnd = event => {
     event.stopPropagation();
+    this.showDetail();
     this.endSwiping();
   };
 
@@ -106,7 +107,6 @@ class SwipeableCard extends Component {
     const updated = moment(this.props.card.updated).fromNow();
     return (
       <Container
-        onMouseUp={this.showDetail}
         background={this.state.background}
         deletingMessage={deletingMessage}
         height={this.props.height}

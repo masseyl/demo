@@ -18,6 +18,9 @@ const DetailContainer = props => {
 };
 const Container = styled.div`
   position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 999;
   display: ${props => (props.show ? "flex" : "none")};
   align-items: center;
   justify-content: center;
