@@ -132,6 +132,7 @@ class Home extends Component {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const width = isIOS ? window.screen.width : window.innerWidth;
     const height = isIOS ? window.screen.height : window.innerHeight;
+    isIOS && alert(width);
     this.setState({
       height,
       width,
