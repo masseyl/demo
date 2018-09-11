@@ -41,10 +41,10 @@ class Home extends Component {
       confirmed: true,
       deleteMessageIndex: -1
     };
-    alert("Well");
   }
 
   componentDidMount() {
+    alert("componentDidMount");
     this.updateWindowDimensions();
     window.addEventListener("resize", this.updateWindowDimensions);
     if (!this.state.confirmed) {
@@ -130,6 +130,8 @@ class Home extends Component {
   };
 
   updateWindowDimensions = () => {
+    alert("updateWindowDimensions");
+    alert(JSON.stringify(screen.orientation));
     const orientation = screen.orientation.type;
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     let width = isIOS ? screen.width : window.innerWidth;
