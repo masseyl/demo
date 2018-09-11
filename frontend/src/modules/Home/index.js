@@ -132,26 +132,6 @@ class Home extends Component {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     let width = window.innerWidth;
     let height = window.innerHeight;
-    if (isIOS) {
-      alert("BEFORE::width: " + width + ", height: " + height);
-      const orientation =
-        window.orientation || window.screen.orientation || screen.orientation;
-      console.log(orientation);
-      const type = orientation.type;
-      if (
-        orientation === 90 ||
-        orientation === 270 ||
-        (type && type.indexOf("landscape") > -1)
-      ) {
-        if (width < height) {
-          let temp;
-          temp = width;
-          width = height;
-          height = temp;
-        }
-      }
-      alert("AFTER::width: " + width + ", height: " + height);
-    }
     this.setState({
       height,
       width,
@@ -161,8 +141,8 @@ class Home extends Component {
 
   render() {
     const content = this.props.messages;
-    const width = this.state.width || window.innerWidth;
-    let listHeight = this.state.height || window.innerHeight;
+    const width = this.state.width;
+    let listHeight = this.state.height;
     listHeight -= this.headerHeight;
     if (!this.state.confirmed) return null;
 

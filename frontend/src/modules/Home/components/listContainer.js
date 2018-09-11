@@ -7,6 +7,7 @@ const ListContainer = props => {
 const Container = styled.div`
   -webkit-backface-visibility: hidden;
   -webkit-transform-style: preserve-3d;
+
   margin-top: 52px;
   width: 96%;
 `;

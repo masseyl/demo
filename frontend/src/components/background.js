@@ -17,10 +17,9 @@ const Background = props => {
 const Container = styled.div`
   -webkit-backface-visibility: hidden;
   -webkit-transform-style: preserve-3d;
-
   position: fixed;
   justify-content: center;
-  width: ${props => props.width}px;
+  width: 100vw;
   height: 100vh;
   background-color: rgba(238, 238, 238, 0.9);
   -webkit-backface-visibility: hidden;

@@ -45,10 +45,10 @@ class SwipeableCard extends Component {
   };
 
   endSwiping = () => {
-    this.mouseIsDown = false;
     this.iAmSwiping = false;
 
     this.endSwipingTimeout = setTimeout(() => {
+      this.mouseIsDown = false;
       this.setState({
         x: 0
       });
