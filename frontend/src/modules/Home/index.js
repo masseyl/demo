@@ -158,7 +158,8 @@ class Home extends Component {
         <ListContainer>
           <VirtualList
             style={{
-              overflowX: "hidden"
+              overflowX: "hidden",
+              width: width + "px"
             }}
             forcer={this.state.forcer}
             overscanCount={this.overscanCount}
