@@ -143,7 +143,6 @@ class Home extends Component {
     const content = this.props.messages;
     const width = this.state.width;
     let listHeight = this.state.height;
-    listHeight -= this.headerHeight;
     if (!this.state.confirmed) return null;
 
     return (
