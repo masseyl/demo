@@ -112,6 +112,7 @@ class SwipeableCard extends Component {
         background={this.state.background}
         deletingMessage={deletingMessage}
         height={this.props.height}
+        width={this.props.width}
         swiping={this.state.x > 0}
       >
         <Swipe
@@ -198,6 +199,7 @@ const Container = styled.div.attrs({
   transition: transform ${props => (props.deletingMessage ? 0.6 : 0.1)}s,
     opacity ${props => (props.deletingMessage ? 0.4 : 0.2)}s ease-in,
     background-color 0.2s ease-in;
+  width: ${props => props.width * 0.92}px;
 `;
 
 const ElapsedTime = styled.p`
