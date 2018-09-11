@@ -203,7 +203,6 @@ const ElapsedTime = styled.p`
   -webkit-user-drag: none;
   user-drag: none;
   user-select: none;
-  -webkit-user-drag: none;
 `;
 
 const Image = styled.img`
@@ -241,6 +240,9 @@ const Text = styled.p`
 `;
 
 const TopRow = styled.div`
+  user-drag: none;
+  user-select: none;
+  -webkit-user-drag: none;
   align-items: center;
   display: flex;
   flex-direction: row;
