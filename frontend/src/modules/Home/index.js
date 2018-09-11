@@ -41,6 +41,7 @@ class Home extends Component {
       confirmed: true,
       deleteMessageIndex: -1
     };
+    alert("Well");
   }
 
   componentDidMount() {
@@ -129,7 +130,7 @@ class Home extends Component {
   };
 
   updateWindowDimensions = () => {
-    const orientation = window.screen.orientation.type;
+    const orientation = screen.orientation.type;
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     let width = isIOS ? screen.width : window.innerWidth;
     let height = isIOS ? screen.height : window.innerHeight;
