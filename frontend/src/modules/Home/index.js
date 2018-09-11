@@ -129,24 +129,16 @@ class Home extends Component {
   };
 
   updateWindowDimensions = () => {
+    const orientation = window.screen.orientation.type;
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    let width;
-    let height;
-    width = window.innerWidth;
-    height = window.innerHeight;
-    if (isIOS) {
-      const orientation = window.screen.orientation.type;
-      console.log(orientation);
-      if (orientation.indexOf("landscape") > -1) {
-        let temp;
-        width = window.screen.width;
-        height = window.screen.height;
-        if (width < height) {
-          temp = width;
-          width = height;
-          height = temp;
-        }
-      }
+    let width = isIOS ? screen.width : window.innerWidth;
+    let height = isIOS ? screen.height : window.innerHeight;
+    if (isIOS && orientation.indexOf("landscape") > -1 && width < height) {
+      alert("width: " + width + ", height: " + height);
+      let temp;
+      temp = width;
+      width = height;
+      height = temp;
     }
     this.setState({
       height,
