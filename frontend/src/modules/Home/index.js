@@ -129,17 +129,28 @@ class Home extends Component {
   };
 
   updateWindowDimensions = () => {
-    alert(JSON.stringify(screen.orientation));
-    const orientation = screen.orientation.type;
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    let width = isIOS ? screen.width : window.innerWidth;
-    let height = isIOS ? screen.height : window.innerHeight;
-    alert("width: " + width + ", height: " + height);
-    if (isIOS && orientation.indexOf("landscape") > -1 && width < height) {
-      let temp;
-      temp = width;
-      width = height;
-      height = temp;
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    if (isIOS) {
+      alert("width: " + width + ", height: " + height);
+      const orientation =
+        window.orientation || window.screen.orientation || screen.orientation;
+      console.log(orientation);
+      const type = orientation.type;
+      if (
+        orientation === 90 ||
+        orientation === 270 ||
+        (type && type.indexOf("landscape") > -1)
+      ) {
+        if (width < height) {
+          let temp;
+          temp = width;
+          width = height;
+          height = temp;
+        }
+      }
+      alert("width: " + width + ", height: " + height);
     }
     this.setState({
       height,
