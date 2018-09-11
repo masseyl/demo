@@ -41,6 +41,7 @@ class SwipeableCard extends Component {
   };
 
   onSwipeEnd = event => {
+    console.log(event);
     event.stopPropagation();
     this.endSwiping();
   };
@@ -64,7 +65,7 @@ class SwipeableCard extends Component {
   }, 5);
 
   determineSwipeResponse = xx => {
-    if (xx > this.props.width * 0.3 && !this.state.deletingMessage) {
+    if (xx > this.props.width * 0.4 && !this.state.deletingMessage) {
       this.deleteMessage();
       this.endSwiping();
       this.velocityArray = [0];
@@ -147,6 +148,7 @@ class SwipeableCard extends Component {
 
 export default SwipeableCard;
 
+const Unselectable = styled.div``;
 const Author = styled.div`
   color: ${props => props.color};
   font-size: 14px;
@@ -199,36 +201,31 @@ const Container = styled.div.attrs({
 `;
 
 const ElapsedTime = styled.p`
-  user-drag: none;
-  user-select: none;
   border-width: 1px;
   color: ${props => props.color};
   font-size: 12px;
   margin-top: 1px;
+  user-drag: none;
   user-select: none;
 `;
 
 const Image = styled.img`
-user-drag: none;
-user-select: none;
   border-radius: 40px;
   border-width: 1px;
   height: 44px;
   margin-right: 10px;
   margin-top: 12px;
   opacity: ${props => (props.deletingMessage ? 0 : 1)}
+  user-drag: none;
+  user-select: none;
   width: 44px;
 `;
 
 const NameBox = styled.div`
-  user-drag: none;
-  user-select: none;
   padding-top: 4px;
 `;
 
 const Text = styled.p`
-  user-drag: none;
-  user-select: none;
   color: ${props => props.color};
   display: -webkit-box;
   font-size: 14px;
@@ -240,12 +237,11 @@ const Text = styled.p`
   margin-left: 3.5px;
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
+  user-drag: none;
   user-select: none;
 `;
 
 const TopRow = styled.div`
-  user-drag: none;
-  user-select: none;
   align-items: center;
   display: flex;
   flex-direction: row;
