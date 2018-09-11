@@ -44,10 +44,6 @@ class Home extends Component {
   }
 
   componentDidMount() {
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
-    this.orientation = window.screen.orientation;
-
     this.updateWindowDimensions();
     window.addEventListener("resize", this.updateWindowDimensions);
     if (!this.state.confirmed) {
@@ -134,28 +130,29 @@ class Home extends Component {
 
   updateWindowDimensions = () => {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    let width = this.width;
-    let height = this.height;
-    // if (!isIOS) {
-    width = window.innerWidth;
-    height = window.innerHeight;
-    // } else {
-    //   const orientation = window.screen.orientation.type;
-    //   console.log(orientation);
-    //   if (window.screen.width === this.width) {
-    //     width = screen.height;
-    //     height = screen.width;
-    //     this.orientation = orientation;
-    //   }
-    // alert(width);
-    // }
+    let width;
+    let height;
+    if (!isIOS) {
+      width = window.innerWidth;
+      height = window.innerHeight;
+    } else {
+      const orientation = window.screen.orientation.type;
+      if (orientation.indexOf("landscape") < -1) {
+        let temp;
+        width = window.screen.width;
+        height = window.screen.height;
+        if (width < height) {
+          temp = width;
+          width = height;
+          height = temp;
+        }
+      }
+    }
     this.setState({
       height,
       width,
       forcer: Math.random()
     });
-    this.width = width;
-    this.height = height;
   };
 
   render() {
