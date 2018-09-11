@@ -132,7 +132,6 @@ class Home extends Component {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const width = isIOS ? window.screen.width : window.innerWidth;
     const height = isIOS ? window.screen.height : window.innerHeight;
-    if (isIOS) alert("resize");
     this.setState({
       height,
       width,
@@ -158,9 +157,9 @@ class Home extends Component {
         <ListContainer>
           <VirtualList
             style={{
-              overflowX: "hidden",
-              width: width + "px"
+              overflowX: "hidden"
             }}
+            width={String(width)}
             forcer={this.state.forcer}
             overscanCount={this.overscanCount}
             onScroll={this.onScroll}
