@@ -159,7 +159,7 @@ class Home extends Component {
             style={{
               overflowX: "hidden"
             }}
-            width={String(width)}
+            width={"100%"}
             forcer={this.state.forcer}
             overscanCount={this.overscanCount}
             onScroll={this.onScroll}

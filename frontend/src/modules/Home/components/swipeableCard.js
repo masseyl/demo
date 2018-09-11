@@ -183,8 +183,7 @@ const Container = styled.div`
   box-shadow: -1px 4px 8px #888888;
 
   margin-bottom: 3px;
-  margin-left: 4%;
-  margin-right: 2px;
+  margin-left: 5%;
   opacity: ${props => (props.deletingMessage ? 0.0 : 1)};
   transform: scale3d(
     ${props => (props.deletingMessage ? -0.25 : 1)},
