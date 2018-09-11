@@ -12,7 +12,7 @@ class SwipeableCard extends Component {
     this.before = 0;
     this.lastX = 0;
     this.endSwipeTimeoutMs = 200;
-    this.CSSAnimationTimeMs = 0.1;
+    this.CSSAnimationTimeMs = 0.15;
     this.lineCount = 3;
     this.fontSize = 14;
     this.state = {
@@ -76,10 +76,6 @@ class SwipeableCard extends Component {
         x: this.lastX
       });
     }
-    // const now = Date.now();
-    // const delta = now - this.before;
-    // // console.log(this.state.x, delta);
-    // this.before = now;
   };
 
   deleteMessage = () => {
@@ -87,7 +83,7 @@ class SwipeableCard extends Component {
     this.props.removeMessage(this.props.index);
 
     this.deleteAnimationTimer = setTimeout(() => {
-      this.setState({ deletingMessage: false });
+      this.setState({ deletingMessage: false, x: 0 });
     }, 2000);
   };
 
@@ -124,7 +120,7 @@ class SwipeableCard extends Component {
           onSwipeEnd={this.onSwipeEnd}
         >
           <CardContainer
-            deletingMessage={deletingMessage}
+            lineHeight={dimensions.lineHeight}
             height={this.props.height}
             x={this.state.x}
             animationSpeed={this.CSSAnimationTimeMs}
@@ -161,22 +157,20 @@ const Author = styled.div`
 
 //the visibility and preserve3d are to minimize flickering on ios safari
 const CardContainer = styled.div.attrs({
-  style: ({ transform }) => ({ transform })
+  style: ({ height, lineHeight, x }) => {
+    const newHeight = height + lineHeight * 2 + 3.5 + "px";
+    return {
+      height: newHeight,
+      transform: "translate3D(" + x + "px,0,0)"
+    };
+  }
 })`
 -webkit-backface-visibility: hidden;
 -webkit-transform-style: preserve-3d;
 
-  height: ${props => props.height + dimensions.lineHeight * 2 + 3.5}px;
   background-color: white;
   padding: 7px 0 7px 7px;
   overflow: hidden
-  transform: translate3d(
-    ${props => {
-      return props.deletingMessage ? 0 : props.x;
-    }}px,
-    0,
-    0
-  );
   transition: transform ${props => props.animationSpeed}s ease-out;
 `;
 
@@ -188,12 +182,11 @@ const Container = styled.div.attrs({
 
   height: ${props => props.height + dimensions.lineHeight * 3}px;
   background-color: ${props => (props.swiping ? "red" : "transparent")};
-  box-shadow: ${props => (props.swiping ? "4px 4px 4px inset" : "-1px 4px 8px")}
-    ${props => (!props.swiping ? "#888888" : "white")}
-    ${props => (props.swiping ? "swiping" : null)};
+  box-shadow: -1px 4px 8px #888888;
 
   margin-bottom: 3px;
   margin-left: 4%;
+  margin-right: 2px;
   opacity: ${props => (props.deletingMessage ? 0.0 : 1)};
   transform: scale3d(
     ${props => (props.deletingMessage ? -0.25 : 1)},
@@ -206,6 +199,8 @@ const Container = styled.div.attrs({
 `;
 
 const ElapsedTime = styled.p`
+  user-drag: none;
+  user-select: none;
   border-width: 1px;
   color: ${props => props.color};
   font-size: 12px;
@@ -214,6 +209,8 @@ const ElapsedTime = styled.p`
 `;
 
 const Image = styled.img`
+user-drag: none;
+user-select: none;
   border-radius: 40px;
   border-width: 1px;
   height: 44px;
@@ -224,10 +221,14 @@ const Image = styled.img`
 `;
 
 const NameBox = styled.div`
+  user-drag: none;
+  user-select: none;
   padding-top: 4px;
 `;
 
 const Text = styled.p`
+  user-drag: none;
+  user-select: none;
   color: ${props => props.color};
   display: -webkit-box;
   font-size: 14px;
@@ -243,6 +244,8 @@ const Text = styled.p`
 `;
 
 const TopRow = styled.div`
+  user-drag: none;
+  user-select: none;
   align-items: center;
   display: flex;
   flex-direction: row;
