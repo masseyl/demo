@@ -11,8 +11,8 @@ class SwipeableCard extends Component {
     this.velocityArray = [0];
     this.before = 0;
     this.lastX = 0;
-    this.endSwipeTimeoutMs = 200;
-    this.CSSAnimationTimeMs = 0.15;
+    this.endSwipeTimeoutMs = 100;
+    this.CSSAnimationTimeSeconds = 0.1;
     this.lineCount = 3;
     this.fontSize = 14;
     this.state = {
@@ -26,7 +26,6 @@ class SwipeableCard extends Component {
   };
 
   onSwipeStart = event => {
-    event.stopPropagation();
     this.mouseIsDown = true;
     this.lastX = 0;
     this.props.startSwiping(this.props.index);
@@ -35,32 +34,30 @@ class SwipeableCard extends Component {
   onSwipeMove = (position, event) => {
     event.stopPropagation();
     if (this.iAmSwiping && this.mouseIsDown) {
-      this.debounceScroll(position);
+      this.debounceSwipe(position);
     }
     this.iAmSwiping = true;
   };
 
   onSwipeEnd = event => {
-    console.log(event);
     event.stopPropagation();
     this.endSwiping();
   };
 
   endSwiping = () => {
-    this.setState({
-      x: 0
-    });
-    console.log("endSwiping");
     this.mouseIsDown = false;
     this.iAmSwiping = false;
 
     this.endSwipingTimeout = setTimeout(() => {
+      this.setState({
+        x: 0
+      });
       this.props.endSwiping();
       clearInterval(this.endSwipingTimeout);
     }, this.endSwipeTimeoutMs);
   };
 
-  debounceScroll = debounce(position => {
+  debounceSwipe = debounce(position => {
     this.determineSwipeResponse(position.x);
   }, 5);
 
@@ -89,17 +86,18 @@ class SwipeableCard extends Component {
   };
 
   showDetail = () => {
-    console.log("showDetail 1");
     if (this.mouseIsDown && !this.iAmSwiping) {
       this.mouseIsDown = false;
       this.props.showDetail(true);
     }
+    this.endSwiping();
   };
+
   render() {
     //"forcer" is a random number used to make sure the virtual list re-renders cards
     // on new items being added/removed from redux
     const forcer = this.props.forcer;
-    //deletingMessage is the variable that kicks off CSS animations
+    //deletingMessage is the variable that kicks off CSS disapperaing animations
     const deletingMessage = this.props.deletedMessageIndex === this.props.index;
     //content values
     const photo = this.props.card.author.photoUrl;
@@ -125,7 +123,7 @@ class SwipeableCard extends Component {
             lineHeight={dimensions.lineHeight}
             height={this.props.height}
             x={this.state.x}
-            animationSpeed={this.CSSAnimationTimeMs}
+            animationSpeed={this.CSSAnimationTimeSeconds}
           >
             <TopRow>
               <Image
@@ -149,7 +147,6 @@ class SwipeableCard extends Component {
 
 export default SwipeableCard;
 
-const Unselectable = styled.div``;
 const Author = styled.div`
   color: ${props => props.color};
   font-size: 14px;
@@ -177,9 +174,7 @@ const CardContainer = styled.div.attrs({
   transition: transform ${props => props.animationSpeed}s ease-out;
 `;
 
-const Container = styled.div.attrs({
-  style: ({ transform }) => ({ transform })
-})`
+const Container = styled.div`
   -webkit-transform-style: preserve-3d;
   -webkit-backface-visibility: hidden;
 
@@ -199,7 +194,6 @@ const Container = styled.div.attrs({
   transition: transform ${props => (props.deletingMessage ? 0.6 : 0.1)}s,
     opacity ${props => (props.deletingMessage ? 0.4 : 0.2)}s ease-in,
     background-color 0.2s ease-in;
-  width: ${props => props.width * 0.92}px;
 `;
 
 const ElapsedTime = styled.p`
@@ -207,8 +201,10 @@ const ElapsedTime = styled.p`
   color: ${props => props.color};
   font-size: 12px;
   margin-top: 1px;
+  -webkit-user-drag: none;
   user-drag: none;
   user-select: none;
+  -webkit-user-drag: none;
 `;
 
 const Image = styled.img`
@@ -220,6 +216,7 @@ const Image = styled.img`
   opacity: ${props => (props.deletingMessage ? 0 : 1)}
   user-drag: none;
   user-select: none;
+  -webkit-user-drag: none;
   width: 44px;
 `;
 
@@ -241,6 +238,7 @@ const Text = styled.p`
   -webkit-box-orient: vertical;
   user-drag: none;
   user-select: none;
+  -webkit-user-drag: none;
 `;
 
 const TopRow = styled.div`

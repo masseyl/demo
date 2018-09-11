@@ -2,7 +2,7 @@ import React, { Component } from "react";
 
 import { ActionCreators } from "redux-undo";
 import { connect } from "react-redux";
-import { throttle } from "lodash";
+import { debounce } from "lodash";
 
 //visual components
 import VirtualList from "react-tiny-virtual-list";
@@ -27,8 +27,8 @@ class Home extends Component {
     //loading management
     this.initialLoadSize = 100;
     this.lastScroll = 1; //updated every scroll. used to determine when to load the next round of messages
-    this.messageThrottleMs = 10; //throttling amount for getting messages
-    this.reloadTrigger = 100; //scroll amount before trying to load more messages ()
+    this.messageDebounceTimeMs = 100; //throttling amount for getting messages
+    this.reloadTrigger = 50; //scroll amount before trying to load more messages ()
     this.subsequentLoadSize = 100;
 
     //undeo management
@@ -65,7 +65,7 @@ class Home extends Component {
       evt / this.reloadTrigger - Math.floor(evt / this.reloadTrigger);
     if (reloadThreshold === 0 && evt > this.lastScroll) {
       this.lastScroll = Math.max(evt, this.lastScroll);
-      this.throttleGetMessages();
+      this.debounceGetMessages();
       this.setState({
         //force virtualized list to update with new content reference
         forcer: Math.random()
@@ -103,11 +103,11 @@ class Home extends Component {
     this.setState({ swiping: true, swipingIndex: index });
   };
 
-  throttleGetMessages = throttle(() => {
+  debounceGetMessages = debounce(() => {
     this.props.getMessages(this.subsequentLoadSize, this.props.pageToken);
-  }, this.messageThrottleMs);
+  }, this.messageDebounceTimeMs);
 
-  throttleRemoveMessage = throttle(index => {
+  debounceRemoveMessage = debounce(index => {
     //setting state to the current card starts the animations
     this.setState({
       deleteMessageIndex: index
@@ -132,7 +132,7 @@ class Home extends Component {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const width = isIOS ? window.screen.width : window.innerWidth;
     const height = isIOS ? window.screen.height : window.innerHeight;
-
+    if (isIOS) alert("resize");
     this.setState({
       height,
       width,
@@ -178,7 +178,7 @@ class Home extends Component {
                     index={index}
                     isSwiping={this.state.swiping}
                     key={index}
-                    removeMessage={this.throttleRemoveMessage}
+                    removeMessage={this.debounceRemoveMessage}
                     showDetail={this.showDetail}
                     startSwiping={this.startSwiping}
                     swipingIndex={this.state.swipingIndex}
