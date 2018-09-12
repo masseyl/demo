@@ -8,13 +8,9 @@ import { endpoints, fontColors, dimensions } from "../../../config/defaults";
 class SwipeableCard extends Component {
   constructor(props) {
     super(props);
-    this.velocityArray = [0];
-    this.before = 0;
     this.lastX = 0;
     this.endSwipeTimeoutMs = 100;
     this.CSSAnimationTimeSeconds = 0.1;
-    this.lineCount = 3;
-    this.fontSize = 14;
     this.state = {
       x: 0
     };
@@ -45,28 +41,23 @@ class SwipeableCard extends Component {
     this.endSwiping();
   };
 
-  endSwiping = () => {
-    this.iAmSwiping = false;
-
-    this.endSwipingTimeout = setTimeout(() => {
-      this.mouseIsDown = false;
-      this.setState({
-        x: 0
-      });
-      this.props.endSwiping();
-      clearInterval(this.endSwipingTimeout);
-    }, this.endSwipeTimeoutMs);
-  };
-
   debounceSwipe = debounce(position => {
     this.determineSwipeResponse(position.x);
   }, 5);
+
+  deleteMessage = () => {
+    this.setState({ deletingMessage: true });
+    this.props.removeMessage(this.props.index);
+
+    this.deleteAnimationTimer = setTimeout(() => {
+      this.setState({ deletingMessage: false, x: 0 });
+    }, 2000);
+  };
 
   determineSwipeResponse = xx => {
     if (xx > this.props.width * 0.4 && !this.state.deletingMessage) {
       this.deleteMessage();
       this.endSwiping();
-      this.velocityArray = [0];
       this.lastX = 0;
     } else {
       this.lastX = xx;
@@ -77,13 +68,17 @@ class SwipeableCard extends Component {
     }
   };
 
-  deleteMessage = () => {
-    this.setState({ deletingMessage: true });
-    this.props.removeMessage(this.props.index);
+  endSwiping = () => {
+    this.iAmSwiping = false;
 
-    this.deleteAnimationTimer = setTimeout(() => {
-      this.setState({ deletingMessage: false, x: 0 });
-    }, 2000);
+    this.endSwipingTimeout = setTimeout(() => {
+      this.props.endSwiping();
+      this.mouseIsDown = false;
+      this.setState({
+        x: 0
+      });
+      clearInterval(this.endSwipingTimeout);
+    }, this.endSwipeTimeoutMs);
   };
 
   showDetail = () => {
@@ -95,12 +90,8 @@ class SwipeableCard extends Component {
   };
 
   render() {
-    //"forcer" is a random number used to make sure the virtual list re-renders cards
-    // on new items being added/removed from redux
-    const forcer = this.props.forcer;
-    //deletingMessage is the variable that kicks off CSS disapperaing animations
+    const forcerender = this.props.forcerender;
     const deletingMessage = this.props.deletedMessageIndex === this.props.index;
-    //content values
     const photo = this.props.card.author.photoUrl;
     const author = this.props.card.author.name;
     const content = this.props.card.content;

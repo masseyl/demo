@@ -2,14 +2,15 @@ import React from "react";
 import styled from "styled-components";
 
 const DetailContainer = props => {
-  const toggle = () => {
+  const toggle = event => {
+    event.stopPropagation();
     props.toggle(false);
   };
 
   return (
     <Container
       onClick={toggle}
-      onMouseMove={event => event.stopPropagation}
+      onMouseMove={event => event.stopPropagation()}
       show={props.show}
     >
       {props.children}
