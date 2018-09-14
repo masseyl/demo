@@ -4,7 +4,7 @@ import Swipe from "react-easy-swipe";
 import moment from "moment";
 import { debounce } from "lodash";
 import { endpoints, fontColors, dimensions } from "../../../config/defaults";
-import { outAndIn, rotate360 } from "./animations";
+import { outAndIn, undo } from "./animations";
 class SwipeableCard extends Component {
   constructor(props) {
     super(props);
@@ -154,7 +154,6 @@ const Author = styled.div`
   user-select: none;
 `;
 
-//the visibility and preserve3d are to minimize flickering on ios safari
 const CardContainer = styled.div.attrs({
   style: ({ height, lineHeight, x }) => {
     const newHeight = height + lineHeight * 2 + 3.5 + "px";
@@ -176,14 +175,15 @@ const CardContainer = styled.div.attrs({
 
 const Container = styled.div`
   animation: ${props =>
-      props.deletingMessage && props.iWasDeleted ? outAndIn : null}
-    1.7s linear;
+        props.deletingMessage && props.iWasDeleted ? outAndIn : null}
+      1s linear,
+    ${props => (props.undoing && props.iWasDeleted ? undo : null)} 0.25s linear;
 
   -webkit-transform-style: preserve-3d;
   -webkit-backface-visibility: hidden;
 
   height: ${props => props.height + dimensions.lineHeight * 3}px;
-  background-color: rgba(248, 248, 248, 0.3);
+  background-color: rgba(255, 200, 100, 0.1);
   box-shadow: -1px 4px 8px #888888;
 
   margin-bottom: 3px;

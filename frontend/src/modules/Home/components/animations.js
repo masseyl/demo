@@ -17,11 +17,11 @@ export const outAndIn = keyframes`
     transform: scale3d(1,1,1);
   }
 `;
-export const rotate360 = keyframes`
+export const undo = keyframes`
   from {
-    transform: rotate(0deg);
+    transform: translate3d(0,100px,0) scale3d(1,0,1)
   }
   to {
-    transform: rotate(60deg)
+    transform: translate3d(0,0,0) scale3d(1,1,1)
   }
 `;
