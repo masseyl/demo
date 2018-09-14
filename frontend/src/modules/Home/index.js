@@ -1,11 +1,9 @@
 import React, { Component } from "react";
-
 import { connect } from "react-redux";
-import { debounce } from "lodash";
+import { Subject, Observable } from "rxjs";
+import { debounceTime, throttleTime, map } from "rxjs/operators";
+import { ActionCreators } from "redux-undo";
 
-import { Subject } from "rxjs";
-import { debounceTime, throttleTime } from "rxjs/operators";
-//visual components
 import VirtualList from "react-tiny-virtual-list";
 import Background from "../../components/background";
 import DetailCard from "./components/detailCard";
@@ -24,35 +22,38 @@ class Home extends Component {
     super(props);
     this.headerHeight = dimensions.headerHeight;
     this.overscanCount = 10;
+    this.edgeDetector = true;
 
     //loading management
+    this.edgeDetector = true;
+    this.maxScrollPosition = 1;
     this.initialLoadSize = 100;
     this.lastScroll = 1; //updated every scroll. used to determine when to load the next round of messages
     this.getMessageDebounceTimeMs = 100; //throttling amount for getting messages
-    this.reloadTrigger = 50; //scroll amount before trying to load more messages ()
-    this.subsequentLoadSize = 100;
+    this.reloadTrigger = 6000; //scroll amount before trying to load more messages ()
 
     //undeo management
-    this.endRemoveResetDelayMs = 500; //how long to wait to remove Undo popup
-    this.deleteMessageDelay = 2000; // how quickly can messages be deleted
-    this.endSwipeDelayMs = 1000; // how long to wait before swipe gesture is considered done
+    this.deleteMessageDelay = 500; // how long before next message can be deleted
+    this.endSwipeDelayMs = 500; // how long to wait before swipe gesture is considered done
 
     this.state = {
       cardHeight: 148,
       confirmed: true,
-      deleteMessageIndex: -1
+      deletedMessageIndex: -1
     };
-    this.createObservables();
-    this.createSubscriptions();
+
+    this.createDeleteMessages$();
+    this.createGetMessages$();
+    this.createOnScroll$();
   }
 
   componentDidMount() {
-    window.addEventListener("resize", this.updateWindowDimensions);
-    this.updateWindowDimensions();
     if (!this.state.confirmed) {
       const confirmationPrompt = prompt("Please enter THE CODE");
       this.setState({ confirmed: confirmationPrompt === "fluffy" });
     }
+    window.addEventListener("resize", this.updateWindowDimensions);
+    this.updateWindowDimensions();
     this.onGetMessages$.next();
   }
 
@@ -63,16 +64,12 @@ class Home extends Component {
     window.removeEventListener("resize", this.updateWindowDimensions);
   }
 
-  onScroll = evt => {
-    const reloadThreshold =
-      evt / this.reloadTrigger - Math.floor(evt / this.reloadTrigger);
-    if (reloadThreshold === 0 && evt > this.lastScroll) {
-      this.lastScroll = Math.max(evt, this.lastScroll);
-      this.onGetMessages$.next();
-      this.setState({
-        forcerender: Math.random()
-      });
-    }
+  onScroll = scrollPosition => {
+    this.onScroll$.next({
+      scrollPosition,
+      reloadTrigger: this.reloadTrigger,
+      edgeDetector: this.edgeDetector
+    });
   };
 
   /**
@@ -101,6 +98,13 @@ class Home extends Component {
     this.onDeleteMessageSubscription = this.onDeleteMessage$.pipe(
       throttleTime(this.deleteMessageDelay)
     );
+    this.onDeleteMessageSubscription.subscribe(index => {
+      this.deletionAnimationControl(index);
+      const removeTimer = setTimeout(() => {
+        this.props.removeMessage(index);
+        clearInterval(removeTimer);
+      }, 450);
+    });
   };
 
   createGetMessages$ = () => {
@@ -108,37 +112,57 @@ class Home extends Component {
     this.onGetMessagesSubscription = this.onGetMessages$.pipe(
       debounceTime(this.getMessageDebounceTimeMs)
     );
-  };
-
-  createObservables = () => {
-    this.createDeleteMessages$();
-    this.createGetMessages$();
-  };
-
-  createSubscriptions = () => {
-    this.createDeleteMessageSubscription();
-    this.createGetMessagesSubscription();
-  };
-
-  createDeleteMessageSubscription = () => {
-    this.onDeleteMessageSubscription.subscribe(index => {
-      this.props.removeMessage(index);
-      this.setState({
-        deleteMessageIndex: index
-      });
-      const animationDelayTimer = setTimeout(() => {
-        this.setState({
-          deleteMessageIndex: -1
-        });
-        clearInterval(animationDelayTimer);
-      }, 500);
-    });
-  };
-
-  createGetMessagesSubscription = () => {
     this.onGetMessagesSubscription.subscribe(() => {
       this.props.getMessages(this.initialLoadSize, this.props.pageToken);
     });
+  };
+
+  createOnScroll$ = () => {
+    this.onScroll$ = new Subject();
+    this.onScrollSubscription = this.onScroll$.pipe(
+      map(({ scrollPosition, reloadTrigger, edgeDetector }) => {
+        let edge = edgeDetector;
+        const modCounter = Math.floor(
+          Math.floor(scrollPosition % reloadTrigger) / 100
+        );
+        if (modCounter === 0 && !edge) {
+          edge = true;
+          console.log("edge detected");
+        }
+        if (modCounter !== 0) {
+          edge = false;
+        }
+        return { edge, scrollPosition };
+      })
+    );
+
+    this.onScrollSubscription.subscribe(({ edge, scrollPosition }) => {
+      if (edge && this.maxScrollPosition < scrollPosition) {
+        this.onGetMessages$.next();
+        this.setState({
+          forcerender: Math.random()
+        });
+      }
+      this.maxScrollPosition = Math.max(scrollPosition, this.maxScrollPosition);
+      this.edgeDetector = edge;
+    });
+  };
+
+  /** Inform the card list which index was just deleted
+   * @function deletionAnimationControl
+   * @param index index of the card being deleted
+   */
+  deletionAnimationControl = index => {
+    this.setState({
+      deletedMessageIndex: index,
+      deletingMessage: true
+    });
+    const animationDelayTimer = setTimeout(() => {
+      this.setState({
+        deletingMessage: false
+      });
+      clearInterval(animationDelayTimer);
+    }, 500);
   };
 
   endSwiping = () => {
@@ -171,7 +195,21 @@ class Home extends Component {
       forcerender: Math.random()
     });
   };
-
+  undoController = () => {
+    this.setState({
+      undoing: true
+    });
+    const undoTimer = setTimeout(() => {
+      this.setState({
+        undoing: false,
+        forcerender: Math.random()
+      });
+    }, 3000);
+    this.props.undo();
+  };
+  // shouldComponentUpdate(props, state) {
+  //   return !state.undoing;
+  // }
   render() {
     const content = this.props.messages;
     const width = this.state.width;
@@ -181,7 +219,7 @@ class Home extends Component {
     return (
       <Background>
         <Undo
-          onClick={this.undoDelete}
+          onClick={this.undoController}
           showHide={this.props.removingMessage}
           width={width}
         />
@@ -202,11 +240,13 @@ class Home extends Component {
               return (
                 <div key={index} style={style}>
                   <SwipeableCard
+                    undoing={this.state.undoing}
                     forcerender={this.state.forcerender}
                     card={content[index]}
-                    deletedMessageIndex={this.state.deleteMessageIndex}
+                    deletingMessage={this.state.deletingMessage}
+                    deletedMessageIndex={this.state.deletedMessageIndex}
                     endSwiping={this.endSwiping}
-                    height={style.height - 56}
+                    height={style.height - this.headerHeight}
                     index={index}
                     isSwiping={this.state.swiping}
                     key={index}
@@ -248,7 +288,8 @@ function mapStateToProps(state) {
 function mapPropsToDispatch(dispatch) {
   return {
     getMessages: (limit, pageToken) => dispatch(getMessages(limit, pageToken)),
-    removeMessage: index => dispatch(removeMessage(index))
+    removeMessage: index => dispatch(removeMessage(index)),
+    undo: () => dispatch(ActionCreators.undo())
   };
 }
 

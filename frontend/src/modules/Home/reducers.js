@@ -28,12 +28,6 @@ const moduleReducer = (state = INITIAL_STATE, action) => {
       newState = { ...state };
       newState.pageToken = action.response.pageToken;
       messages = messages.concat(action.response.messages);
-      // //not sure this is needed since messages seem to all be timestamped 4 years ago...
-      messages.sort((a, b) => {
-        if (moment(a.updated).isSame(b.updated)) return 0;
-        if (moment(a.updated).isBefore(b.updated)) return -1;
-        return 1;
-      });
       newState.messages = messages;
       newState.messagesLoaded = true;
 

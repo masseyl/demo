@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
-import { ActionCreators } from "redux-undo";
 
 import { hideUndo } from "../actions";
 
@@ -11,7 +10,7 @@ class Undo extends Component {
       this.undoTimer = setTimeout(() => {
         this.props.hideUndo();
         clearInterval(this.undoTimer);
-      }, 5000);
+      }, 8000);
     }
   }
 
@@ -22,7 +21,7 @@ class Undo extends Component {
   onClick = event => {
     event.stopPropagation();
     clearInterval(this.undoTimer);
-    this.props.undo();
+    this.props.onClick();
     this.props.hideUndo();
   };
 
@@ -46,8 +45,7 @@ function mapStateToProps(state) {
 }
 function mapPropsToDispatch(dispatch) {
   return {
-    hideUndo: () => dispatch(hideUndo()),
-    undo: () => dispatch(ActionCreators.undo())
+    hideUndo: () => dispatch(hideUndo())
   };
 }
 export default connect(

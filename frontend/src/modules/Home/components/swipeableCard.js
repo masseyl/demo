@@ -4,18 +4,21 @@ import Swipe from "react-easy-swipe";
 import moment from "moment";
 import { debounce } from "lodash";
 import { endpoints, fontColors, dimensions } from "../../../config/defaults";
-
+import { outAndIn, rotate360 } from "./animations";
 class SwipeableCard extends Component {
   constructor(props) {
     super(props);
     this.lastX = 0;
     this.endSwipeTimeoutMs = 100;
-    this.CSSAnimationTimeSeconds = 0.1;
+    this.CSSAnimationTimeSeconds = 0.15;
     this.state = {
       x: 0
     };
   }
 
+  // shouldComponentUpdate(props, state) {
+  //   return !props.undoing;
+  // }
   componentWillUnmount = () => {
     clearInterval(this.deleteAnimationTimer);
     clearInterval(this.endSwipingTimeout);
@@ -46,25 +49,27 @@ class SwipeableCard extends Component {
   }, 5);
 
   deleteMessage = () => {
-    this.setState({ deletingMessage: true });
+    this.setState({ deletingMessage: true, x: 1000 });
     this.props.removeMessage(this.props.index);
 
     this.deleteAnimationTimer = setTimeout(() => {
-      this.setState({ deletingMessage: false, x: 0 });
-    }, 2000);
+      this.setState({ deletingMessage: false });
+    }, 100);
   };
 
   determineSwipeResponse = xx => {
-    if (xx > this.props.width * 0.4 && !this.state.deletingMessage) {
+    if (xx > this.props.width * 0.3 && !this.state.deletingMessage) {
       this.deleteMessage();
       this.endSwiping();
       this.lastX = 0;
     } else {
       this.lastX = xx;
       this.lastX = this.lastX > 0 ? this.lastX : 0;
-      this.setState({
-        x: this.lastX
-      });
+      if (this.lastX > 30) {
+        this.setState({
+          x: this.lastX
+        });
+      }
     }
   };
 
@@ -91,7 +96,8 @@ class SwipeableCard extends Component {
 
   render() {
     const forcerender = this.props.forcerender;
-    const deletingMessage = this.props.deletedMessageIndex === this.props.index;
+    const deletingMessage = this.props.deletingMessage;
+    const iWasDeleted = this.props.deletedMessageIndex === this.props.index;
     const photo = this.props.card.author.photoUrl;
     const author = this.props.card.author.name;
     const content = this.props.card.content;
@@ -100,6 +106,8 @@ class SwipeableCard extends Component {
       <Container
         background={this.state.background}
         deletingMessage={deletingMessage}
+        iWasDeleted={iWasDeleted}
+        undoing={this.props.undoing}
         height={this.props.height}
         width={this.props.width}
         swiping={this.state.x > 0}
@@ -152,7 +160,7 @@ const CardContainer = styled.div.attrs({
     const newHeight = height + lineHeight * 2 + 3.5 + "px";
     return {
       height: newHeight,
-      transform: "translate3D(" + x + "px,0,0)"
+      transform: "translate3D(" + 1.5 * x + "px,0,0)"
     };
   }
 })`
@@ -162,28 +170,24 @@ const CardContainer = styled.div.attrs({
   background-color: white;
   padding: 7px 0 7px 7px;
   overflow: hidden
-  transition: transform ${props => props.animationSpeed}s ease-out;
+  transition: transform ${props =>
+    props.animationSpeed}s cubic-bezier(0.865, 0.113 0.405, 1.04);
 `;
 
 const Container = styled.div`
+  animation: ${props =>
+      props.deletingMessage && props.iWasDeleted ? outAndIn : null}
+    1.7s linear;
+
   -webkit-transform-style: preserve-3d;
   -webkit-backface-visibility: hidden;
 
   height: ${props => props.height + dimensions.lineHeight * 3}px;
-  background-color: ${props => (props.swiping ? "red" : "transparent")};
+  background-color: rgba(248, 248, 248, 0.3);
   box-shadow: -1px 4px 8px #888888;
 
   margin-bottom: 3px;
   margin-left: 5%;
-  opacity: ${props => (props.deletingMessage ? 0.0 : 1)};
-  transform: scale3d(
-    ${props => (props.deletingMessage ? -0.25 : 1)},
-    ${props => (props.deletingMessage ? -0.25 : 1)},
-    ${props => (props.deletingMessage ? -0.25 : 1)}
-  );
-  transition: transform ${props => (props.deletingMessage ? 0.6 : 0.1)}s,
-    opacity ${props => (props.deletingMessage ? 0.4 : 0.2)}s ease-in,
-    background-color 0.2s ease-in;
 `;
 
 const ElapsedTime = styled.p`
@@ -202,7 +206,6 @@ const Image = styled.img`
   height: 44px;
   margin-right: 10px;
   margin-top: 12px;
-  opacity: ${props => (props.deletingMessage ? 0 : 1)}
   user-drag: none;
   user-select: none;
   -webkit-user-drag: none;
