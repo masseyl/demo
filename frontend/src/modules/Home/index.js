@@ -15,7 +15,7 @@ import SwipeableCard from "./components/swipeableCard";
 import Undo from "./components/undo";
 
 import { getMessages, removeMessage } from "./actions";
-import { dimensions } from "../../config/defaults";
+import { dimensions, sharedTimings } from "../../config/defaults";
 
 class Home extends Component {
   constructor(props) {
@@ -79,17 +79,21 @@ class Home extends Component {
    * Based on the number of lines of text calculate the height of the card
    * to pass to the Virtualized List based on lineHeight, fontsize, screen width,
    * and the number of characters in the content
+   * charsPerLine is a VERY rough estimate
    */
   calculateCardHeight = index => {
     const content = this.props.messages[index];
     const characters = content.content.length;
     const lineHeight = dimensions.lineHeight;
-    const verticalPadding = lineHeight * 3.1;
+    const verticalOffset = dimensions.cardTextVerticalOffset;
     const width = window.innerWidth * 0.84; //92% of 92% closest I could get to responsive width
-    const charsPerLine = width / (lineHeight / 2);
-    const numLines = Math.min(4, Math.ceil(characters / charsPerLine));
+    const charsPerLine = width / (lineHeight / 2); //es
+    const numLines = Math.min(
+      dimensions.maxLinesPerCard,
+      Math.ceil(characters / charsPerLine)
+    );
 
-    const height = verticalPadding + numLines * lineHeight + verticalPadding;
+    const height = verticalOffset + numLines * lineHeight + verticalOffset;
     return Math.min(height, height);
   };
 
@@ -100,10 +104,10 @@ class Home extends Component {
     );
     this.onDeleteMessageSubscription.subscribe(index => {
       this.deletionAnimationControl(index);
-      const removeTimer = setTimeout(() => {
+      const removeMessageTimer = setTimeout(() => {
         this.props.removeMessage(index);
-        clearInterval(removeTimer);
-      }, 450);
+        clearInterval(removeMessageTimer);
+      }, sharedTimings.removeMessageTimer);
     });
   };
 
@@ -162,7 +166,7 @@ class Home extends Component {
         deletingMessage: false
       });
       clearInterval(animationDelayTimer);
-    }, 500);
+    }, sharedTimings.animationDelayTimer);
   };
 
   endSwiping = () => {
@@ -204,7 +208,7 @@ class Home extends Component {
         undoing: false,
         forcerender: Math.random()
       });
-    }, 3000);
+    }, sharedTimings.undoTimer);
     this.props.undo();
   };
   // shouldComponentUpdate(props, state) {

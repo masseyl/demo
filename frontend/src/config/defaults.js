@@ -6,7 +6,16 @@ export const fontColors = {
 
 export const dimensions = {
   headerHeight: 52,
-  lineHeight: 16
+  lineHeight: 16,
+  maxLinesPerCard: 4,
+  cardTextVerticalOffset: 50
+};
+
+export const sharedTimings = {
+  animationDelayTimer: 500,
+  deleteAnimationTimer: 100,
+  removeMessageTimer: 450,
+  undoTimer: 3000
 };
 
 export const endpoints = {

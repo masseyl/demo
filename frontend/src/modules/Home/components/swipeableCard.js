@@ -54,7 +54,7 @@ class SwipeableCard extends Component {
 
     this.deleteAnimationTimer = setTimeout(() => {
       this.setState({ deletingMessage: false });
-    }, 100);
+    }, dimensions.deleteAnimationTimer);
   };
 
   determineSwipeResponse = xx => {
@@ -177,7 +177,8 @@ const Container = styled.div`
   animation: ${props =>
         props.deletingMessage && props.iWasDeleted ? outAndIn : null}
       1s linear,
-    ${props => (props.undoing && props.iWasDeleted ? undo : null)} 0.25s linear;
+    ${props => (props.undoing && props.iWasDeleted ? undo : null)} 0.35s
+      ease-out;
 
   -webkit-transform-style: preserve-3d;
   -webkit-backface-visibility: hidden;
