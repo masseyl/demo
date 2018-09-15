@@ -2,9 +2,12 @@ import React, { Component } from "react";
 import styled from "styled-components";
 import Swipe from "react-easy-swipe";
 import moment from "moment";
-import { debounce } from "lodash";
+import { Subject } from "rxjs";
+import { throttleTime } from "rxjs/operators";
+
 import { endpoints, fontColors, dimensions } from "../../../config/defaults";
 import { outAndIn, undo } from "./animations";
+
 class SwipeableCard extends Component {
   constructor(props) {
     super(props);
@@ -14,11 +17,9 @@ class SwipeableCard extends Component {
     this.state = {
       x: 0
     };
+    this.createOnSwipe$();
   }
 
-  // shouldComponentUpdate(props, state) {
-  //   return !props.undoing;
-  // }
   componentWillUnmount = () => {
     clearInterval(this.deleteAnimationTimer);
     clearInterval(this.endSwipingTimeout);
@@ -33,7 +34,7 @@ class SwipeableCard extends Component {
   onSwipeMove = (position, event) => {
     event.stopPropagation();
     if (this.iAmSwiping && this.mouseIsDown) {
-      this.debounceSwipe(position);
+      this.onSwipe$.next(position);
     }
     this.iAmSwiping = true;
   };
@@ -44,9 +45,14 @@ class SwipeableCard extends Component {
     this.endSwiping();
   };
 
-  debounceSwipe = debounce(position => {
-    this.determineSwipeResponse(position.x);
-  }, 5);
+  createOnSwipe$ = () => {
+    this.onSwipe$ = new Subject();
+    this.onSwipeSubscription = this.onSwipe$.pipe(throttleTime(16));
+
+    this.onSwipeSubscription.subscribe(position => {
+      this.determineSwipeResponse(position.x);
+    });
+  };
 
   deleteMessage = () => {
     this.setState({ deletingMessage: true, x: 1000 });
