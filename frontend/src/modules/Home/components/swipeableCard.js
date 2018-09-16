@@ -12,6 +12,7 @@ class SwipeableCard extends Component {
   constructor(props) {
     super(props);
     this.lastX = 0;
+    this.velocityArray = [0];
     this.endSwipeTimeoutMs = 100;
     this.CSSAnimationTimeSeconds = 0.1;
     this.state = {
@@ -51,6 +52,28 @@ class SwipeableCard extends Component {
     this.endSwiping();
   };
 
+  calculateVelocity = xx => {
+    const deltaX = xx - this.lastX;
+    this.lastX = xx;
+
+    let velocity = 0;
+    let velocityArray = [...this.velocityArray];
+    velocityArray.push(deltaX);
+
+    if (velocityArray.length > 5) {
+      if (velocityArray.length >= 6) {
+        velocityArray.unshift();
+      }
+
+      velocity = velocityArray.reduce(
+        (average, nextValue) => (average + nextValue) / velocityArray.length,
+        velocityArray[0]
+      );
+    }
+    this.velocityArray = velocityArray;
+    return velocity;
+  };
+
   createOnSwipe$ = () => {
     this.onSwipe$ = new Subject();
     this.onSwipeSubscription = this.onSwipe$.pipe(throttleTime(8));
@@ -70,7 +93,11 @@ class SwipeableCard extends Component {
   };
 
   determineSwipeResponse = xx => {
-    if (xx > this.props.width * 0.3 && !this.state.deletingMessage) {
+    const velocity = this.calculateVelocity(xx);
+    if (
+      (xx > this.props.width * 0.5 || velocity > 5) &&
+      !this.state.deletingMessage
+    ) {
       this.deleteMessage();
       this.endSwiping();
       this.lastX = 0;
@@ -87,6 +114,7 @@ class SwipeableCard extends Component {
 
   endSwiping = () => {
     this.iAmSwiping = false;
+    this.velocityArray = [0];
 
     this.endSwipingTimeout = setTimeout(() => {
       this.props.endSwiping();
