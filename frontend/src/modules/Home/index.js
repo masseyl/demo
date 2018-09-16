@@ -39,7 +39,8 @@ class Home extends Component {
     this.state = {
       cardHeight: 148,
       confirmed: false,
-      deletedMessageIndex: -1
+      deletedMessageIndex: -1,
+      undoOffset: 0
     };
 
     this.createDeleteMessages$();
@@ -194,6 +195,7 @@ class Home extends Component {
     let width = window.innerWidth;
     let height = window.innerHeight;
     this.setState({
+      undoOffset: width > height ? this.headerHeight : 0,
       height,
       width,
       forcerender: Math.random()
@@ -223,6 +225,7 @@ class Home extends Component {
     return (
       <Background>
         <Undo
+          offset={this.state.undoOffset}
           onClick={this.undoController}
           showHide={this.props.removingMessage}
           width={width}

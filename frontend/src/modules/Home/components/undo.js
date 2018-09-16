@@ -31,6 +31,7 @@ class Undo extends Component {
         onClick={this.onClick}
         showHide={this.props.showHide}
         width={this.props.width}
+        offset={this.props.offset}
       >
         <Message>Undo</Message>
       </Container>
@@ -58,7 +59,7 @@ const Container = styled.div`
 -webkit-transform-style: preserve-3d;
 
 	position: absolute;
-	top: 7px;
+	top: ${props => props.offset + 7}px;
 	visibility: ${props => (props.showHide ? "visible" : "hidden")}
 	z-index: 9999;
 	height: 40px;
