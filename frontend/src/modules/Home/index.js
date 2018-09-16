@@ -21,16 +21,16 @@ class Home extends Component {
   constructor(props) {
     super(props);
     this.headerHeight = dimensions.headerHeight;
-    this.overscanCount = 10;
+    this.overscanCount = 20;
     this.edgeDetector = true;
 
     //loading management
     this.edgeDetector = true;
     this.maxScrollPosition = 1;
-    this.initialLoadSize = 100;
+    this.initialLoadSize = 150;
     this.lastScroll = 1; //updated every scroll. used to determine when to load the next round of messages
     this.getMessageDebounceTimeMs = 100; //throttling amount for getting messages
-    this.reloadTrigger = 6000; //scroll amount before trying to load more messages ()
+    this.reloadTrigger = 3000; //scroll amount before trying to load more messages ()
 
     //undeo management
     this.deleteMessageDelay = 500; // how long before next message can be deleted
@@ -38,7 +38,7 @@ class Home extends Component {
 
     this.state = {
       cardHeight: 148,
-      confirmed: true,
+      confirmed: false,
       deletedMessageIndex: -1,
       undoOffset: 0
     };
@@ -132,7 +132,6 @@ class Home extends Component {
         );
         if (modCounter === 0 && !edge) {
           edge = true;
-          console.log("edge detected");
         }
         if (modCounter !== 0) {
           edge = false;
@@ -201,6 +200,7 @@ class Home extends Component {
       forcerender: Math.random()
     });
   };
+
   undoController = () => {
     this.setState({
       undoing: true
@@ -213,9 +213,7 @@ class Home extends Component {
     }, sharedTimings.undoTimer);
     this.props.undo();
   };
-  // shouldComponentUpdate(props, state) {
-  //   return !state.undoing;
-  // }
+
   render() {
     const content = this.props.messages;
     const width = this.state.width;
