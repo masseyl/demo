@@ -33,7 +33,6 @@ class SwipeableCard extends Component {
     });
     this.mouseIsDown = true;
     this.CSSAnimationTimeSeconds = 0.05;
-    this.lastX = 0;
     this.props.startSwiping(this.props.index);
   };
 
@@ -52,34 +51,13 @@ class SwipeableCard extends Component {
     this.endSwiping();
   };
 
-  calculateVelocity = xx => {
-    const deltaX = xx - this.lastX;
-    this.lastX = xx;
-
-    let velocity = 0;
-    let velocityArray = [...this.velocityArray];
-    velocityArray.push(deltaX);
-
-    if (velocityArray.length > 5) {
-      if (velocityArray.length >= 6) {
-        velocityArray.unshift();
-      }
-
-      velocity = velocityArray.reduce(
-        (average, nextValue) => (average + nextValue) / velocityArray.length,
-        velocityArray[0]
-      );
-    }
-    this.velocityArray = velocityArray;
-    return velocity;
-  };
-
   createOnSwipe$ = () => {
     this.onSwipe$ = new Subject();
     this.onSwipeSubscription = this.onSwipe$.pipe(throttleTime(8));
 
     this.onSwipeSubscription.subscribe(position => {
       this.determineSwipeResponse(position.x);
+      this.lastX = position.x;
     });
   };
 
@@ -93,20 +71,18 @@ class SwipeableCard extends Component {
   };
 
   determineSwipeResponse = xx => {
-    const velocity = this.calculateVelocity(xx);
+    const distance = xx - this.lastX;
     if (
-      (xx > this.props.width * 0.5 || velocity > 5) &&
+      (xx > this.props.width * 0.5 || distance > 70) &&
       !this.state.deletingMessage
     ) {
       this.deleteMessage();
       this.endSwiping();
-      this.lastX = 0;
     } else {
-      this.lastX = xx;
-      this.lastX = this.lastX > 0 ? this.lastX : 0;
-      if (this.lastX > 30) {
+      xx = xx > 0 ? xx : 0;
+      if (xx > 20) {
         this.setState({
-          x: this.lastX
+          x: xx
         });
       }
     }
