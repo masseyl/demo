@@ -12,7 +12,6 @@ class SwipeableCard extends Component {
   constructor(props) {
     super(props);
     this.lastX = 0;
-    this.velocityArray = [0];
     this.endSwipeTimeoutMs = 100;
     this.CSSAnimationTimeSeconds = 0.1;
     this.state = {
@@ -90,7 +89,6 @@ class SwipeableCard extends Component {
 
   endSwiping = () => {
     this.iAmSwiping = false;
-    this.velocityArray = [0];
 
     this.endSwipingTimeout = setTimeout(() => {
       this.props.endSwiping();
