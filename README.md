@@ -4,8 +4,18 @@
 
 **Google UXE Exercise: Infinitely Scrolling List**
 
+_Installation:_
+
+1.  cd ./<wherever you put the code base>
+2.  yarn install
+3.  cd ./frontend
+4.  yarn install
+5.  yarn start
+6.  open localhost:3000 in your browser
+
 _Basic info:_
-Though I've been working in React Native for the past two years, I thought this exercise would be more interesting in "normal" react. I ejected from a "create-react-app" boilerplate then added redux, redux-persist, redux-sagas, redux-undo, and styled components to fill out the missing bits, and modified the structure so that it's more modular.
+
+Though I've been working in React Native for the past two years, I thought this exercise would be more interesting in "normal" react. I ejected from a "create-react-app" boilerplate then added redux, redux-persist, redux-sagas, redux-undo, rxjs, and styled components to fill out the missing bits, and modified the structure so that it's more modular.
 
 Initially, I tried just loading everything into a single scrolling list which worked OK for rendering, but got seriously bogged down when trying to swipe components, so I went for a virtualized list. I'd wanted to write my own, but time constraints didn't allow for that, so I opted for "react-tiny-virtual-list" and with a couple of tweaks it worked quite well.
 
@@ -18,7 +28,7 @@ The first issue was that the messages site threw CORS errors - not nice! So I ha
 
 Second was dealing with the browser sorting through thousands of elements to track the mousedowns for the swipes. Once I went virtual though, that solved it self.
 
-Third... **_variable card heights_** in a virtual list in a responsive web app. Ouch... Anyway - once I'd figured out a rough way to calculate the number of lines, I created a "lineHeight" variable and passed it around to the card. It's a little hacky, and if I had more time I think I could do better.
+Third... **_variable card heights_** in a virtual list in a responsive web app that works on Pixel 2 **and** iPhone. Ouch... Anyway - once I'd figured out a rough way to calculate the number of lines, I created a "lineHeight" variable and passed it around to the card. It's a little hacky, and if I had more time I think I could do better.
 
 Fourth - making it responsive without much in the way of guidelines. Mostly I worked the widths based on a per centage - the guide was 360px width, the margins were 14px, so I used 92% width as a baseline. Vertical dimensions I kept at absolute pixels which seems to translate nicely between devices.
 
