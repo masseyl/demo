@@ -42,7 +42,7 @@ I've tried to simplify the code as much as possible, but the use of observables 
 
 Swipes are a little more complicated due to the animations and the fact that I felt compelled to add undo capability. I'll keep this short:
 
-A mousedown immediately tells the module which card is being swiped (swipingIndex) and starts the "touchdown" animation, at which point the react-easy-swipe module comes into play tracking the X location. The X value is sent to the card container which uses a CSS translation style property to move it around accordingly. If the X location is past 30% of the card's width the delete sequence is started, an improvement would be a velocity tracker so a quick swipe at the top would also trigger the delete function.
+A mousedown immediately tells the module which card is being swiped (swipingIndex) and starts the "touchdown" animation, at which point the react-easy-swipe module comes into play tracking the X location. The X value is sent to the card container which uses a CSS translation style property to move it around accordingly. If the X location is past 50% of the card's width or the velocity is > 5px per sample the delete sequence is started.
 
 The deletion sequence first starts the deletion animation (scale XYZ and opacity to nothingness) then calls redux to remove the item from the messages array. During this time the animation will have completed and a state change is called to re-render the list as the card quickly fades in - this is what makes it feel like the list is "bumping up"
 
