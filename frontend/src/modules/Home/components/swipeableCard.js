@@ -6,16 +6,17 @@ import { Subject } from "rxjs";
 import { throttleTime } from "rxjs/operators";
 
 import { endpoints, fontColors, dimensions } from "../../../config/defaults";
-import { outAndIn, undo } from "./animations";
+import { outAndIn, undo, touchdown } from "./animations";
 
 class SwipeableCard extends Component {
   constructor(props) {
     super(props);
     this.lastX = 0;
     this.endSwipeTimeoutMs = 100;
-    this.CSSAnimationTimeSeconds = 0.15;
+    this.CSSAnimationTimeSeconds = 0.1;
     this.state = {
-      x: 0
+      x: 0,
+      touchdown: false
     };
     this.createOnSwipe$();
   }
@@ -26,7 +27,11 @@ class SwipeableCard extends Component {
   };
 
   onSwipeStart = event => {
+    this.setState({
+      touchdown: true
+    });
     this.mouseIsDown = true;
+    this.CSSAnimationTimeSeconds = 0.05;
     this.lastX = 0;
     this.props.startSwiping(this.props.index);
   };
@@ -40,6 +45,7 @@ class SwipeableCard extends Component {
   };
 
   onSwipeEnd = event => {
+    this.CSSAnimationTimeSeconds = 0.4;
     event.stopPropagation();
     this.showDetail();
     this.endSwiping();
@@ -47,7 +53,7 @@ class SwipeableCard extends Component {
 
   createOnSwipe$ = () => {
     this.onSwipe$ = new Subject();
-    this.onSwipeSubscription = this.onSwipe$.pipe(throttleTime(16));
+    this.onSwipeSubscription = this.onSwipe$.pipe(throttleTime(8));
 
     this.onSwipeSubscription.subscribe(position => {
       this.determineSwipeResponse(position.x);
@@ -86,7 +92,8 @@ class SwipeableCard extends Component {
       this.props.endSwiping();
       this.mouseIsDown = false;
       this.setState({
-        x: 0
+        x: 0,
+        touchdown: false
       });
       clearInterval(this.endSwipingTimeout);
     }, this.endSwipeTimeoutMs);
@@ -114,6 +121,7 @@ class SwipeableCard extends Component {
         deletingMessage={deletingMessage}
         iWasDeleted={iWasDeleted}
         undoing={this.props.undoing}
+        touchdown={this.state.touchdown}
         height={this.props.height}
         width={this.props.width}
         swiping={this.state.x > 0}
@@ -165,18 +173,18 @@ const CardContainer = styled.div.attrs({
     const newHeight = height + lineHeight * 2 + 3.5 + "px";
     return {
       height: newHeight,
-      transform: "translate3D(" + 1.5 * x + "px,0,0)"
+      transform: "translate3D(" + 1.3 * x + "px,0,0)"
     };
   }
 })`
--webkit-backface-visibility: hidden;
--webkit-transform-style: preserve-3d;
+  -webkit-backface-visibility: hidden;
+  -webkit-transform-style: preserve-3d;
 
   background-color: white;
   padding: 7px 0 7px 7px;
-  overflow: hidden
-  transition: transform ${props =>
-    props.animationSpeed}s cubic-bezier(0.865, 0.113 0.405, 1.04);
+  overflow: hidden;
+  transition-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
+  transition: transform ${props => props.animationSpeed}s;
 `;
 
 const Container = styled.div`
@@ -184,7 +192,8 @@ const Container = styled.div`
         props.deletingMessage && props.iWasDeleted ? outAndIn : null}
       1s linear,
     ${props => (props.undoing && props.iWasDeleted ? undo : null)} 0.35s
-      ease-out;
+      ease-out,
+    ${props => (props.touchdown ? touchdown : null)} 0.2s ease-out;
 
   -webkit-transform-style: preserve-3d;
   -webkit-backface-visibility: hidden;

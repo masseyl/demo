@@ -25,3 +25,20 @@ export const undo = keyframes`
     transform: translate3d(0,0,0) scale3d(1,1,1)
   }
 `;
+
+export const touchdown = keyframes`
+  from{
+    opacity: 1;
+    transform: translate3d(0,0,0) scale3d(1,1,1)
+  }
+  50%{
+    opacity: .9;
+    transform:translate3d(0,1px,0) scale3d(.999,.9,1)
+
+  }
+  to {
+    opacity: 1;
+    transform:translate3d(0,0,0)  scale3d(1,1,1);
+  }
+
+`;
