@@ -28,15 +28,18 @@ export const undo = keyframes`
 
 export const touchdown = keyframes`
   from{
+    filter: brightness(100%);
     opacity: 1;
     transform: translate3d(0,0,0) scale3d(1,1,1)
   }
   50%{
+    filter: brightness(50%);
     opacity: .9;
     transform:translate3d(0,1px,0) scale3d(.999,.9,1)
 
   }
   to {
+    filter: brightness(100%);
     opacity: 1;
     transform:translate3d(0,0,0)  scale3d(1,1,1);
   }

@@ -19,6 +19,6 @@ export const sharedTimings = {
 };
 
 export const endpoints = {
-  imagesBase: "http://message-list.appspot.com/",
+  imagesBase: "https://message-list.appspot.com/",
   apiBase: "https://g-messages.herokuapp.com/"
 };
