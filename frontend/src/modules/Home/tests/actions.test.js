@@ -13,25 +13,25 @@ describe("check the actions", () => {
     });
   });
   it("returns a proper payload for getting messages", () => {
-    expect(actions.getMessages(1, "fluffy")).toEqual({
+    expect(actions.getMessages(1, "newToken")).toEqual({
       type: GET_MESSAGES,
       payload: {
         limit: 1,
-        pageToken: "fluffy"
+        pageToken: "newToken"
       }
     });
   });
   it("returns a proper payload for getting messages", () => {
-    expect(actions.getMessages(10, "fluffiness", "whatever")).toEqual({
+    expect(actions.getMessages(10, "anotherToken", "whatever")).toEqual({
       type: GET_MESSAGES,
       payload: {
         limit: 10,
-        pageToken: "fluffiness"
+        pageToken: "anotherToken"
       }
     });
   });
   it("returns a proper payload for removing messages", () => {
-    expect(actions.removeMessage(1, "fluffy")).toEqual({
+    expect(actions.removeMessage(1, "remover")).toEqual({
       type: REMOVE_MESSAGE,
       index: 1
     });

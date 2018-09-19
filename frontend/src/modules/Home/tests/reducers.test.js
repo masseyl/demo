@@ -31,11 +31,11 @@ describe("check REMOVE_MESSAGE", () => {
     let action1 = {
       type: GET_MESSAGES_SUCCESS,
       response: {
-        pageToken: "fluffy",
+        pageToken: "newToken",
         messages: [
-          { content: "hey!", updated: updated1 },
-          { content: "there", updated: updated1 },
-          { content: "man!", updated: updated1 }
+          { content: "first message", updated: updated1 },
+          { content: "second message", updated: updated1 },
+          { content: "third message", updated: updated1 }
         ]
       }
     };
@@ -51,10 +51,10 @@ describe("check REMOVE_MESSAGE", () => {
     //bad date
     expect(newState).toEqual({
       messages: [
-        { content: "hey!", updated: updated1 },
-        { content: "man!", updated: updated1 }
+        { content: "first message", updated: updated1 },
+        { content: "third message", updated: updated1 }
       ],
-      pageToken: "fluffy",
+      pageToken: "newToken",
       messagesLoaded: true,
       undoable: true
     });
@@ -89,50 +89,50 @@ describe("check GET_MESSAGES_SUCCESS", () => {
     let action1 = {
       type: GET_MESSAGES_SUCCESS,
       response: {
-        pageToken: "fluffy",
+        pageToken: "newToken",
         messages: [
-          { content: "hi!", updated: updated1 },
-          { content: "there!", updated: updated1 }
+          { content: "first message", updated: updated1 },
+          { content: "second message", updated: updated1 }
         ]
       }
     };
     let action2 = {
       type: GET_MESSAGES_SUCCESS,
       response: {
-        pageToken: "fluffy2",
+        pageToken: "secondToken",
         messages: [
-          { content: "good!", updated: updated2 },
-          { content: "to meet you!", updated: updated2 }
+          { content: "third message", updated: updated2 },
+          { content: "fourth message", updated: updated2 }
         ]
       }
     };
     let action3 = {
       type: GET_MESSAGES_SUCCESS,
       response: {
-        pageToken: "fluffy3",
-        messages: [{ content: "enough!", updated: updated2 }]
+        pageToken: "thirdToken",
+        messages: [{ content: "fifth message", updated: updated2 }]
       }
     };
     //initial load & token
     newState = moduleReducer(INITIAL_STATE, action1);
     expect(newState).toEqual({
       messages: [
-        { content: "hi!", updated: updated1 },
-        { content: "there!", updated: updated1 }
+        { content: "first message", updated: updated1 },
+        { content: "second message", updated: updated1 }
       ],
-      pageToken: "fluffy",
+      pageToken: "newToken",
       messagesLoaded: true
     });
     //second load & token
     newState = moduleReducer(newState, action2);
     expect(newState).toEqual({
       messages: [
-        { content: "hi!", updated: updated1 },
-        { content: "there!", updated: updated1 },
-        { content: "good!", updated: updated2 },
-        { content: "to meet you!", updated: updated2 }
+        { content: "first message", updated: updated1 },
+        { content: "second message", updated: updated1 },
+        { content: "third message", updated: updated2 },
+        { content: "fourth message", updated: updated2 }
       ],
-      pageToken: "fluffy2",
+      pageToken: "secondToken",
       messagesLoaded: true
     });
     //third load & token fails
@@ -140,61 +140,61 @@ describe("check GET_MESSAGES_SUCCESS", () => {
     //bad date
     expect(newState).not.toEqual({
       messages: [
-        { content: "hi!", updated: updated2 },
-        { content: "there!", updated: updated1 },
-        { content: "good!", updated: updated2 },
-        { content: "to meet you!", updated: updated2 },
-        { content: "enough!", updated: updated2 }
+        { content: "first message", updated: updated2 },
+        { content: "second message", updated: updated1 },
+        { content: "third message", updated: updated2 },
+        { content: "fourth message", updated: updated2 },
+        { content: "fifth message", updated: updated2 }
       ],
-      pageToken: "fluffy3",
+      pageToken: "thirdToken",
       messagesLoaded: true
     });
     //bad token
     expect(newState).not.toEqual({
       messages: [
-        { content: "hi!", updated: updated1 },
-        { content: "there!", updated: updated1 },
-        { content: "good!", updated: updated2 },
-        { content: "to meet you!", updated: updated2 },
-        { content: "enough!", updated: updated2 }
+        { content: "first message", updated: updated1 },
+        { content: "second message", updated: updated1 },
+        { content: "third message", updated: updated2 },
+        { content: "fourth message", updated: updated2 },
+        { content: "fifth message", updated: updated2 }
       ],
-      pageToken: "fluffy2",
+      pageToken: "secondToken",
       messagesLoaded: true
     });
     //bad status
     expect(newState).not.toEqual({
       messages: [
-        { content: "hi!", updated: updated1 },
-        { content: "there!", updated: updated1 },
-        { content: "good!", updated: updated2 },
-        { content: "to meet you!", updated: updated2 },
-        { content: "enough!", updated: updated2 }
+        { content: "first message", updated: updated1 },
+        { content: "second message", updated: updated1 },
+        { content: "third message", updated: updated2 },
+        { content: "fourth message", updated: updated2 },
+        { content: "fifth message", updated: updated2 }
       ],
-      pageToken: "fluffy3",
+      pageToken: "thirdToken",
       messagesLoaded: false
     });
     //content out of order
     expect(newState).not.toEqual({
       messages: [
-        { content: "there!", updated: updated1 },
-        { content: "hi!", updated: updated1 },
-        { content: "good!", updated: updated2 },
-        { content: "to meet you!", updated: updated2 },
-        { content: "enough!", updated: updated2 }
+        { content: "second message", updated: updated1 },
+        { content: "first message", updated: updated1 },
+        { content: "third message", updated: updated2 },
+        { content: "fourth message", updated: updated2 },
+        { content: "fifth message", updated: updated2 }
       ],
-      pageToken: "fluffy3",
+      pageToken: "thirdToken",
       messagesLoaded: true
     });
     //content altered
     expect(newState).not.toEqual({
       messages: [
-        { content: "HOWDY!", updated: updated1 },
-        { content: "there!", updated: updated1 },
-        { content: "good!", updated: updated2 },
-        { content: "to meet you!", updated: updated2 },
-        { content: "enough!", updated: updated2 }
+        { content: "zeroth message", updated: updated1 },
+        { content: "second message", updated: updated1 },
+        { content: "third message", updated: updated2 },
+        { content: "fourth message", updated: updated2 },
+        { content: "fifth message", updated: updated2 }
       ],
-      pageToken: "fluffy3",
+      pageToken: "thirdToken",
       messagesLoaded: true
     });
   });

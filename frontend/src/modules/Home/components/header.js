@@ -54,11 +54,7 @@ const Hamburger = styled.img`
   width: 20px;
   height: 25px;
 `;
-const LeftArrow = styled.img`
-  width: 30px;
-  height: 30px;
-  opacity: ${props => props.opacity};
-`;
+
 const Menu = styled.div`
   flex: 1;
   margin-right: 14px;

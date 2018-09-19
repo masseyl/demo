@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Subject, Observable } from "rxjs";
+import { Subject } from "rxjs";
 import { debounceTime, throttleTime, map } from "rxjs/operators";
 import { ActionCreators } from "redux-undo";
 
@@ -17,24 +17,23 @@ import Undo from "./components/undo";
 import { getMessages, removeMessage } from "./actions";
 import { dimensions, sharedTimings } from "../../config/defaults";
 
+const OVERSCAN_COUNT = 20;
+const INITIAL_LOAD_SIZE = 150;
+const MESSAGE_DEBOUNCE_TIME = 100;
+const RELOAD_TRIGGER = 3000;
+const MESSAGE_DELETION_DELAY = 500;
+const SWIPE_END_DELAY = 500;
+
 class Home extends Component {
   constructor(props) {
     super(props);
     this.headerHeight = dimensions.headerHeight;
-    this.overscanCount = 20;
     this.edgeDetector = true;
 
     //loading management
     this.edgeDetector = true;
     this.maxScrollPosition = 1;
-    this.initialLoadSize = 150;
     this.lastScroll = 1; //updated every scroll. used to determine when to load the next round of messages
-    this.getMessageDebounceTimeMs = 100; //throttling amount for getting messages
-    this.reloadTrigger = 3000; //scroll amount before trying to load more messages ()
-
-    //undeo management
-    this.deleteMessageDelay = 500; // how long before next message can be deleted
-    this.endSwipeDelayMs = 500; // how long to wait before swipe gesture is considered done
 
     this.state = {
       cardHeight: 148,
@@ -68,7 +67,7 @@ class Home extends Component {
   onScroll = scrollPosition => {
     this.onScroll$.next({
       scrollPosition,
-      reloadTrigger: this.reloadTrigger,
+      reloadTrigger: RELOAD_TRIGGER,
       edgeDetector: this.edgeDetector
     });
   };
@@ -101,7 +100,7 @@ class Home extends Component {
   createDeleteMessages$ = () => {
     this.onDeleteMessage$ = new Subject();
     this.onDeleteMessageSubscription = this.onDeleteMessage$.pipe(
-      throttleTime(this.deleteMessageDelay)
+      throttleTime(MESSAGE_DELETION_DELAY)
     );
     this.onDeleteMessageSubscription.subscribe(index => {
       this.deletionAnimationControl(index);
@@ -115,10 +114,10 @@ class Home extends Component {
   createGetMessages$ = () => {
     this.onGetMessages$ = new Subject();
     this.onGetMessagesSubscription = this.onGetMessages$.pipe(
-      debounceTime(this.getMessageDebounceTimeMs)
+      debounceTime(MESSAGE_DEBOUNCE_TIME)
     );
     this.onGetMessagesSubscription.subscribe(() => {
-      this.props.getMessages(this.initialLoadSize, this.props.pageToken);
+      this.props.getMessages(INITIAL_LOAD_SIZE, this.props.pageToken);
     });
   };
 
@@ -173,7 +172,7 @@ class Home extends Component {
     this.endSwipeTimer = setTimeout(() => {
       this.setState({ swiping: false });
       clearInterval(this.endSwipeTimer);
-    }, this.endSwipeDelayMs);
+    }, SWIPE_END_DELAY);
   };
 
   removeMessage = index => this.onDeleteMessage$.next(index);
@@ -201,7 +200,7 @@ class Home extends Component {
     });
   };
 
-  undoController = () => {
+  undoAnimationController = () => {
     this.setState({
       undoing: true
     });
@@ -210,6 +209,7 @@ class Home extends Component {
         undoing: false,
         forcerender: Math.random()
       });
+      clearInterval(undoTimer);
     }, sharedTimings.undoTimer);
     this.props.undo();
   };
@@ -224,7 +224,7 @@ class Home extends Component {
       <Background>
         <Undo
           offset={this.state.undoOffset}
-          onClick={this.undoController}
+          onClick={this.undoAnimationController}
           showHide={this.props.removingMessage}
           width={width}
         />
@@ -236,7 +236,7 @@ class Home extends Component {
             }}
             width={width * 0.96 + "px"}
             forcerender={this.state.forcerender}
-            overscanCount={this.overscanCount}
+            overscanCount={OVERSCAN_COUNT}
             onScroll={this.onScroll}
             height={listHeight}
             itemCount={content.length}

@@ -1,4 +1,3 @@
-import moment from "moment";
 import {
   GET_MESSAGES,
   GET_MESSAGES_SUCCESS,
